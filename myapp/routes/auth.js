@@ -69,13 +69,16 @@ router.post('/login', async (req, res) => {
     
     // JWT Token erstellen
     console.log('[DEBUG] /login: Erstelle JWT Token');
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user.id }, 'dating-app-secret-key', { expiresIn: '1d' });
+    const fullToken = `Bearer ${token}`;
+    
     console.log('[DEBUG] /login: Generiertes Token:', token);
+    console.log('[DEBUG] /login: Vollständiges Token mit Bearer-Präfix:', fullToken);
     
     console.log('[DEBUG] /login: Login erfolgreich, sende Antwort');
     res.json({
       success: true,
-      token: `Bearer ${token}`,
+      token: fullToken, // WICHTIG: Mit "Bearer "-Präfix zurückgeben
       user: {
         id: user.id,
         name: user.name,

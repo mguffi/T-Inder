@@ -56,6 +56,15 @@ console.log('[DEBUG] app.js: Passport initialisiert');
 require('./config/passport')(passport);
 console.log('[DEBUG] app.js: Passport-Konfiguration geladen');
 
+// Vor dem ersten Router-Einsatz einfügen:
+
+// Debug-Middleware für alle Anfragen
+app.use((req, res, next) => {
+  console.log('[DEBUG] Neue Anfrage:', req.method, req.url);
+  console.log('[DEBUG] Headers:', JSON.stringify(req.headers, null, 2));
+  next();
+});
+
 // Routen
 app.use('/', authRouter);
 console.log('[DEBUG] app.js: Auth-Router eingerichtet');

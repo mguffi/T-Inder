@@ -42,7 +42,23 @@
     </footer>
 
     <!-- In layout.ejs für Testzwecke -->
-    <button id="test-auth-button" style="position: fixed; bottom: 10px; right: 10px; z-index: 999;">Test Auth</button>
+    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 999;">
+        <button id="test-auth-button" class="btn btn-primary mb-2">Test Auth</button>
+        <div>
+            <div id="auth-status" class="badge bg-secondary">Status prüfen...</div>
+        </div>
+    </div>
+    <script>
+        // Einfache Statusanzeige
+        document.addEventListener('DOMContentLoaded', function() {
+            const authStatus = document.getElementById('auth-status');
+            if (authStatus) {
+                const token = localStorage.getItem('token');
+                authStatus.className = token ? 'badge bg-success' : 'badge bg-danger';
+                authStatus.textContent = token ? 'Angemeldet' : 'Nicht angemeldet';
+            }
+        });
+    </script>
     <script src="/js/test-auth.js"></script>
 
     <!-- Lade zuerst die Auth-Scripts -->

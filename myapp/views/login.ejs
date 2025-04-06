@@ -1,119 +1,29 @@
 <!-- views/login.ejs -->
 <div class="row justify-content-center">
-  <div class="col-lg-5 col-md-7 col-sm-9">
-    <div class="card shadow">
-      <div class="card-body p-4">
-        <h2 class="card-title text-center mb-4">Login</h2>
-        <div id="error-message" class="alert alert-danger d-none"></div>
-        <form id="login-form">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">Anmelden</h3>
+      </div>
+      <div class="card-body">
+        <form id="loginForm">
           <div class="mb-3">
             <label for="email" class="form-label">Benutzername</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-user"></i></span>
-              <input type="text" class="form-control" id="email" name="email" required>
-            </div>
+            <input type="text" class="form-control" id="email" name="email" required>
           </div>
           <div class="mb-3">
             <label for="password" class="form-label">Passwort</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-lock"></i></span>
-              <input type="password" class="form-control" id="password" name="password" required>
-            </div>
+            <input type="password" class="form-control" id="password" name="password" required>
           </div>
-          <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary btn-lg">Anmelden</button>
-          </div>
+          <button type="submit" class="btn btn-primary">Anmelden</button>
         </form>
-        <div class="text-center mt-3">
-          <p>Noch kein Konto? <a href="/register">Jetzt registrieren</a></p>
-        </div>
+      </div>
+      <div class="card-footer text-center">
+        <p class="mb-0">Noch kein Konto? <a href="/register">Jetzt registrieren</a></p>
       </div>
     </div>
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('login-form');
-    const errorMessage = document.getElementById('error-message');
-    
-    loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        try {
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.message || 'Login fehlgeschlagen');
-            }
-            
-            // Token im localStorage speichern
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            
-            // Weiterleitung zur People-Seite
-            window.location.href = '/people';
-            
-        } catch (error) {
-            errorMessage.textContent = error.message;
-            errorMessage.classList.remove('d-none');
-        }
-    });
-});
-
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  
-  if (!emailInput || !passwordInput) {
-    console.error('Formularfelder nicht gefunden');
-    return;
-  }
-  
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  
-  fetch('/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email, password })
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log('Login-Antwort:', data);
-    
-    if (data.success) {
-      // Token im localStorage speichern
-      localStorage.setItem('token', data.token);
-      console.log('Token gespeichert:', data.token.substring(0, 20) + '...');
-      
-      // Benutzer im localStorage speichern
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      // Redirect zur People-Seite
-      window.location.href = '/people';
-    } else {
-      alert('Login fehlgeschlagen: ' + (data.message || 'Unbekannter Fehler'));
-    }
-  })
-  .catch(error => {
-    console.error('Fehler beim Login:', error);
-    alert('Ein Fehler ist aufgetreten');
-  });
-});
-</script>
+<!-- Wichtig: Login-spezifisches JavaScript einbinden -->
+<script src="/js/login.js"></script>
