@@ -1,9 +1,10 @@
 // middlewares/auth.js
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
+const db = require('../config/db');
 
 const authenticateJWT = (req, res, next) => {
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+  passport.authenticate('jwt', { session: false }, async (err, user, info) => {
     if (err) {
       return next(err);
     }
@@ -11,6 +12,8 @@ const authenticateJWT = (req, res, next) => {
     if (!user) {
       return res.status(401).json({ message: 'Nicht autorisiert' });
     }
+    
+    const [rows] = await db.query('SELECT * FROM user WHERE name = ?', [email]);
     
     req.user = user;
     next();

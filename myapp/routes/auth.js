@@ -3,11 +3,11 @@ const express = require('express');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const pool = require('../config/db'); // Import the pool once
+const db = require('../config/db'); // Import the pool once
 
-console.log('[DEBUG] auth.js: Pool importiert:', typeof pool);
-console.log('[DEBUG] auth.js: Pool hat query?', typeof pool.query === 'function');
-console.log('[DEBUG] auth.js: Pool Methoden:', Object.keys(pool));
+console.log('[DEBUG] auth.js: Pool importiert:', typeof db);
+console.log('[DEBUG] auth.js: Pool hat query?', typeof db.query === 'function');
+console.log('[DEBUG] auth.js: Pool Methoden:', Object.keys(db));
 
 const router = express.Router();
 
@@ -28,13 +28,23 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     console.log('[DEBUG] /login: E-Mail:', email, 'Passwort vorhanden:', !!password);
     
-    console.log('[DEBUG] /login: Pool-Typ:', typeof pool);
-    console.log('[DEBUG] /login: Pool Methoden:', Object.keys(pool));
-    console.log('[DEBUG] /login: Pool.query vorhanden?', typeof pool.query === 'function');
+    console.log('[DEBUG] /login: Pool-Typ:', typeof db);
+    console.log('[DEBUG] /login: Pool Methoden:', Object.keys(db));
+    console.log('[DEBUG] /login: Pool.query vorhanden?', typeof db.query === 'function');
+    
+    // Versuche eine explizite Abfrage, um sicherzustellen, dass der Pool funktioniert
+    console.log('[DEBUG] /login: Teste Datenbankverbindung...');
+    try {
+      const [testResult] = await db.query('SELECT 1+1 AS result');
+      console.log('[DEBUG] /login: Test erfolgreich:', testResult);
+    } catch (testError) {
+      console.error('[DEBUG] /login: Testabfrage fehlgeschlagen:', testError);
+      throw testError; // Wirf den Fehler weiter
+    }
     
     // Benutzer in der Datenbank suchen
     console.log('[DEBUG] /login: Versuche Datenbankabfrage mit name =', email);
-    const [rows] = await pool.query('SELECT * FROM user WHERE name = ?', [email]);
+    const [rows] = await db.query('SELECT * FROM user WHERE name = ?', [email]);
     console.log('[DEBUG] /login: Datenbankabfrage erfolgreich, gefundene Einträge:', rows.length);
     
     if (rows.length === 0) {
@@ -82,7 +92,7 @@ router.post('/register', async (req, res) => {
     const { name, gender, birthday, password } = req.body;
     
     // Prüfen, ob Benutzer bereits existiert
-    const [existingUsers] = await pool.query('SELECT * FROM user WHERE name = ?', [name]);
+    const [existingUsers] = await db.query('SELECT * FROM user WHERE name = ?', [name]);
     
     if (existingUsers.length > 0) {
       return res.status(400).json({ message: 'Benutzername bereits vergeben' });
@@ -98,13 +108,13 @@ router.post('/register', async (req, res) => {
       : 'https://xsgames.co/randomusers/assets/avatars/female/1.jpg';
       
     // Benutzer in Datenbank einfügen
-    const [result] = await pool.query(
+    const [result] = await db.query(
       'INSERT INTO user (name, gender, birthday, image_url, password_hash, password) VALUES (?, ?, ?, ?, ?, ?)',
       [name, gender, birthday, imageUrl, passwordHash, password]
     );
     
     // Standardfilter für den neuen Benutzer erstellen
-    await pool.query(
+    await db.query(
       'INSERT INTO user_filters (user_id, min_age, max_age, gender_preference) VALUES (?, ?, ?, ?)',
       [result.insertId, 18, 99, 'all']
     );
@@ -137,7 +147,7 @@ router.get('/logout', (req, res) => {
 // Example route
 router.get('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM user WHERE id = ?', [req.user.id]);
+    const [rows] = await db.query('SELECT * FROM user WHERE id = ?', [req.user.id]);
     res.json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: 'Database error' });
