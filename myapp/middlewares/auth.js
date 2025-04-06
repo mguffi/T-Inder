@@ -8,9 +8,24 @@ require('../config/passport')(passport);
 
 const authenticateJWT = (req, res, next) => {
   console.log('[DEBUG] middlewares/auth.js: authenticateJWT aufgerufen');
+  console.log('[DEBUG] middlewares/auth.js: Authorization Header:', req.headers.authorization);
+  
+  // Token manuell prüfen als Debug
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    const token = req.headers.authorization.substring(7);
+    try {
+      const decoded = jwt.decode(token, { complete: true });
+      console.log('[DEBUG] middlewares/auth.js: Token-Header:', decoded.header);
+      console.log('[DEBUG] middlewares/auth.js: Token-Payload:', decoded.payload);
+    } catch (e) {
+      console.error('[DEBUG] middlewares/auth.js: Token-Dekodierung fehlgeschlagen:', e);
+    }
+  }
   
   passport.authenticate('jwt', { session: false }, async (err, user, info) => {
     console.log('[DEBUG] middlewares/auth.js: JWT-Authentifizierung durchgeführt');
+    // Füge info-Objekt zum Debug hinzu
+    console.log('[DEBUG] middlewares/auth.js: Auth-Info:', info);
     
     if (err) {
       console.error('[DEBUG] middlewares/auth.js: Fehler bei der Authentifizierung:', err);

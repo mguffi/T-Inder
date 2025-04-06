@@ -4,6 +4,7 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db'); // Import the pool once
+const { JWT_SECRET } = require('../config/keys');
 
 console.log('[DEBUG] auth.js: Pool importiert:', typeof db);
 console.log('[DEBUG] auth.js: Pool hat query?', typeof db.query === 'function');
@@ -68,7 +69,8 @@ router.post('/login', async (req, res) => {
     
     // JWT Token erstellen
     console.log('[DEBUG] /login: Erstelle JWT Token');
-    const token = jwt.sign({ id: user.id }, 'dating-app-secret-key', { expiresIn: '1d' });
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
+    console.log('[DEBUG] /login: Generiertes Token:', token);
     
     console.log('[DEBUG] /login: Login erfolgreich, sende Antwort');
     res.json({
