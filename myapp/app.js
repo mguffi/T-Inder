@@ -133,6 +133,9 @@ const server = http.createServer(app);
 // Socket.io initialisieren
 const io = socketIo(server);
 
+// Importiere JWT_SECRET
+const { JWT_SECRET } = require('./config/keys');
+
 // Socket.io Verbindung verarbeiten
 io.on('connection', (socket) => {
   console.log('Neue Socket-Verbindung:', socket.id);

@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Nachrichten-Verlauf laden
+  // Verbessere den Chat-Verlauf-Ladeprozess
   async function loadChatHistory(userId) {
     try {
       chatMessages.innerHTML = `
@@ -62,6 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       `;
       
+      console.log(`Chat-Verlauf laden für Benutzer ${userId}`);
+      
       const response = await fetch(`/chat/${userId}`, {
         headers: {
           'Authorization': token
@@ -69,20 +71,25 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       
       if (!response.ok) {
-        throw new Error('Fehler beim Laden der Nachrichten');
+        if (response.status === 403) {
+          throw new Error('Kein Match mit diesem Benutzer');
+        } else {
+          throw new Error('Fehler beim Laden der Nachrichten');
+        }
       }
       
       const data = await response.json();
+      console.log('Chat-Nachrichten erhalten:', data.messages.length);
       
       // Chat-Verlauf anzeigen
       displayChatHistory(data.messages);
       
     } catch (error) {
-      console.error('Fehler:', error);
+      console.error('Fehler beim Laden des Chat-Verlaufs:', error);
       chatMessages.innerHTML = `
         <div class="text-center text-danger py-5">
           <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
-          <p>Fehler beim Laden der Nachrichten.</p>
+          <p>${error.message}</p>
         </div>
       `;
     }
@@ -190,6 +197,21 @@ document.addEventListener('DOMContentLoaded', function() {
   socket.on('error', function(error) {
     console.error('Socket.io Error:', error);
     alert('Fehler: ' + error.message);
+  });
+
+  // Socket.io-Verbindungstests
+  socket.on('connect', () => {
+    console.log('Socket.io verbunden mit ID:', socket.id);
+    // Authentifiziere sofort nach Verbindungsherstellung
+    socket.emit('authenticate', token);
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error('Socket.io Verbindungsfehler:', error);
+  });
+
+  socket.on('disconnect', (reason) => {
+    console.log('Socket.io getrennt:', reason);
   });
 
   // Update die package.json, um socket.io als Abhängigkeit hinzuzufügen
