@@ -1,31 +1,37 @@
 // routes/profile.js
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/db');
 const { authenticateJWT } = require('../middlewares/auth');
+const db = require('../config/db');
 
-// Profilseite anzeigen
-router.get('/', authenticateJWT, (req, res) => {
-  console.log('[DEBUG] /profile: Profilanfrage für Benutzer', req.user.id);
+// Profil anzeigen
+router.get('/', authenticateJWT, async (req, res) => {
+  console.log('[DEBUG] /profile: Anfrage für Profil, Benutzer-ID:', req.user.id);
+  console.log('[DEBUG] /profile: Accept Header:', req.headers.accept);
+  console.log('[DEBUG] /profile: Render Template:', req.headers.accept && !req.headers.accept.includes('application/json'));
   
-  // Prüfe den Accept-Header, um zu bestimmen, ob es eine API-Anfrage ist
-  const isApiRequest = req.headers.accept && req.headers.accept.includes('application/json');
-  
-  if (isApiRequest) {
-    // Für API-Anfragen JSON zurückgeben
-    return res.json(req.user);
+  try {
+    // Benutzer ist bereits in req.user verfügbar durch die authenticateJWT-Middleware
+    const user = req.user;
+    console.log('[DEBUG] /profile: Profildaten gefunden:', !!user);
+    
+    // Wichtig: Entscheide zwischen JSON oder HTML basierend auf dem Accept-Header
+    const wantsJson = req.headers.accept && req.headers.accept.includes('application/json');
+    
+    if (wantsJson) {
+      // Wenn es eine API-Anfrage ist, gib JSON zurück
+      return res.json(user);
+    }
+    
+    // Ansonsten render das EJS Template
+    res.render('profile', { 
+      title: 'Mein Profil',
+      user: user
+    });
+  } catch (err) {
+    console.error('[DEBUG] /profile: Fehler beim Laden des Profils:', err);
+    res.status(500).send('Serverfehler beim Laden des Profils');
   }
-  
-  // Für Browser-Anfragen HTML mit EJS rendern
-  // Sensitive Daten wie das Passwort entfernen
-  const userForTemplate = { ...req.user };
-  delete userForTemplate.password;
-  delete userForTemplate.password_hash;
-  
-  res.render('profile', { 
-    title: 'Mein Profil',
-    user: userForTemplate
-  });
 });
 
 // Profil-Bearbeitungsansicht
@@ -50,14 +56,14 @@ router.put('/', authenticateJWT, async (req, res) => {
     const { name, gender, birthday } = req.body;
     
     // Überprüfen, ob der Name bereits vergeben ist (außer vom aktuellen Benutzer)
-    const [existingUsers] = await pool.query('SELECT * FROM user WHERE name = ? AND id != ?', [name, req.user.id]);
+    const [existingUsers] = await db.query('SELECT * FROM user WHERE name = ? AND id != ?', [name, req.user.id]);
     
     if (existingUsers.length > 0) {
       return res.status(400).json({ message: 'Benutzername bereits vergeben' });
     }
     
     // Profil aktualisieren
-    await pool.query(
+    await db.query(
       'UPDATE user SET name = ?, gender = ?, birthday = ? WHERE id = ?',
       [name, gender, birthday, req.user.id]
     );
