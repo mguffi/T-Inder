@@ -125,4 +125,8 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
   }
 });
 
+router.get('/', (req, res) => {
+  res.render('index', { title: 'T-Inder - Deine Dating-Plattform' });
+});
+
 module.exports = router;

@@ -6,6 +6,7 @@ const session = require('express-session');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const cors = require('cors');
+const expressLayouts = require('express-ejs-layouts');
 
 // Importieren der Routen
 const authRouter = require('./routes/auth');
@@ -19,6 +20,8 @@ const app = express();
 // View Engine Setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.use(expressLayouts);
+app.set('layout', 'layout'); // Set layout.ejs as the default layout
 
 // Middleware
 app.use(logger('dev'));
