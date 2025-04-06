@@ -4,36 +4,15 @@ const router = express.Router();
 const { authenticateJWT } = require('../middlewares/auth');
 const db = require('../config/db');
 
-// Profil anzeigen
-router.get('/', authenticateJWT, async (req, res) => {
-  console.log('[DEBUG] /profile: Anfrage für Profil, Benutzer-ID:', req.user.id);
-  console.log('[DEBUG] /profile: Accept Header:', req.headers.accept);
+// Profil anzeigen - VEREINFACHT für Fehlersuche
+router.get('/', async (req, res) => {
+  console.log('[DEBUG FIXED] /profile route called, user:', req.user?.id);
   
   try {
-    const user = req.user;
-    console.log('[DEBUG] /profile: Profildaten gefunden:', !!user);
-    
-    // Klarere Unterscheidung zwischen API und Browser
-    const isApiRequest = req.xhr || 
-                        (req.headers.accept && 
-                         !req.headers.accept.includes('text/html') && 
-                         req.headers.accept.includes('*/*') && 
-                         req.headers.accept.length < 5);
-    
-    console.log('[DEBUG] /profile: Ist API-Anfrage?', isApiRequest);
-    
-    if (isApiRequest) {
-      console.log('[DEBUG] /profile: Sende JSON-Antwort');
-      return res.json(user);
-    }
-    
-    // Für Browser-Anfragen: HTML rendern
-    console.log('[DEBUG] /profile: Sende HTML-Antwort mit Template');
-    
+    // Direktes Rendern des Templates, keine API-Logik mehr
     res.render('profile', { 
       title: 'Mein Profil',
-      user: user,
-      // Füge die calculateAge-Funktion direkt hier ein, falls sie nicht global verfügbar ist
+      user: req.user,
       calculateAge: function(birthday) {
         const birthdayDate = new Date(birthday);
         const today = new Date();
@@ -46,8 +25,8 @@ router.get('/', authenticateJWT, async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('[DEBUG] /profile: Fehler beim Laden des Profils:', err);
-    res.status(500).send('Serverfehler beim Laden des Profils');
+    console.error('[DEBUG FIXED] Error rendering profile:', err);
+    res.status(500).send('Fehler beim Rendern der Profilseite');
   }
 });
 

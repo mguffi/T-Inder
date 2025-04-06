@@ -167,6 +167,7 @@ router.get('/logout', (req, res) => {
 });
 
 // Profile route
+/*
 router.get('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     console.log('[DEBUG] /profile: Anfrage für Profil, Benutzer-ID:', req.user.id);
@@ -178,6 +179,7 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
     res.status(500).json({ error: 'Database error' });
   }
 });
+*/
 
 router.get('/', (req, res) => {
   res.render('index', { title: 'T-Inder - Deine Dating-Plattform' });

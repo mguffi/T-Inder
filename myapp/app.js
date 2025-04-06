@@ -78,14 +78,38 @@ app.use((req, res, next) => {
 });
 
 // Routen
-app.use('/', authRouter);
-console.log('[DEBUG] app.js: Auth-Router eingerichtet');
-
 // Geschützte Routen mit Middleware
 app.use('/profile', authenticateJWT, profileRouter);
 app.use('/people', authenticateJWT, peopleRouter);
 app.use('/filters', authenticateJWT, filtersRouter);
 app.use('/matches', authenticateJWT, matchesRouter);
+
+// DANACH erst die allgemeine auth-Route
+app.use('/', authRouter);
+console.log('[DEBUG] app.js: Auth-Router eingerichtet');
+
+// Debug-Route für Profil
+app.get('/profile-test', (req, res) => {
+  res.render('profile', { 
+    title: 'Test Profil', 
+    user: {
+      name: 'Test User',
+      gender: 'male',
+      birthday: '1990-01-01',
+      image_url: 'https://xsgames.co/randomusers/assets/avatars/male/1.jpg'
+    },
+    calculateAge: function(birthday) {
+      const birthdayDate = new Date(birthday);
+      const today = new Date();
+      let age = today.getFullYear() - birthdayDate.getFullYear();
+      const m = today.getMonth() - birthdayDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthdayDate.getDate())) {
+        age--;
+      }
+      return age;
+    }
+  });
+});
 
 // Error Handler
 app.use((err, req, res, next) => {
