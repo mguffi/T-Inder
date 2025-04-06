@@ -25,8 +25,9 @@ router.get('/register', (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     console.log('[DEBUG] /login: Anfrage erhalten:', req.body);
-    const { email, password } = req.body;
-    console.log('[DEBUG] /login: E-Mail:', email, 'Passwort vorhanden:', !!password);
+    // Umbenennen von 'email' zu 'username' für mehr Klarheit
+    const { email: username, password } = req.body;
+    console.log('[DEBUG] /login: Benutzername:', username, 'Passwort vorhanden:', !!password);
     
     console.log('[DEBUG] /login: Pool-Typ:', typeof db);
     console.log('[DEBUG] /login: Pool Methoden:', Object.keys(db));
@@ -43,13 +44,13 @@ router.post('/login', async (req, res) => {
     }
     
     // Benutzer in der Datenbank suchen
-    console.log('[DEBUG] /login: Versuche Datenbankabfrage mit name =', email);
-    const [rows] = await db.query('SELECT * FROM user WHERE name = ?', [email]);
+    console.log('[DEBUG] /login: Versuche Datenbankabfrage mit name =', username);
+    const [rows] = await db.query('SELECT * FROM user WHERE name = ?', [username]);
     console.log('[DEBUG] /login: Datenbankabfrage erfolgreich, gefundene Einträge:', rows.length);
     
     if (rows.length === 0) {
       console.log('[DEBUG] /login: Kein Benutzer gefunden');
-      return res.status(401).json({ message: 'E-Mail oder Passwort falsch' });
+      return res.status(401).json({ message: 'Benutzername oder Passwort falsch' });
     }
     
     const user = rows[0];
@@ -62,7 +63,7 @@ router.post('/login', async (req, res) => {
     
     if (!isMatch) {
       console.log('[DEBUG] /login: Passwort stimmt nicht überein');
-      return res.status(401).json({ message: 'E-Mail oder Passwort falsch' });
+      return res.status(401).json({ message: 'Benutzername oder Passwort falsch' });
     }
     
     // JWT Token erstellen
@@ -90,17 +91,20 @@ router.post('/login', async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const { name, gender, birthday, password } = req.body;
+    console.log('[DEBUG] /register: Registrierungsdaten:', { name, gender, birthday, passwordLänge: password?.length });
     
     // Prüfen, ob Benutzer bereits existiert
     const [existingUsers] = await db.query('SELECT * FROM user WHERE name = ?', [name]);
     
     if (existingUsers.length > 0) {
+      console.log('[DEBUG] /register: Benutzername bereits vergeben:', name);
       return res.status(400).json({ message: 'Benutzername bereits vergeben' });
     }
     
     // Passwort hashen
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
+    console.log('[DEBUG] /register: Passwort gehasht');
     
     // Standardprofilbild basierend auf Geschlecht
     const imageUrl = gender === 'male' 
@@ -108,19 +112,24 @@ router.post('/register', async (req, res) => {
       : 'https://xsgames.co/randomusers/assets/avatars/female/1.jpg';
       
     // Benutzer in Datenbank einfügen
+    console.log('[DEBUG] /register: Füge Benutzer in die Datenbank ein');
     const [result] = await db.query(
       'INSERT INTO user (name, gender, birthday, image_url, password_hash, password) VALUES (?, ?, ?, ?, ?, ?)',
       [name, gender, birthday, imageUrl, passwordHash, password]
     );
+    console.log('[DEBUG] /register: Benutzer eingefügt, ID:', result.insertId);
     
     // Standardfilter für den neuen Benutzer erstellen
+    console.log('[DEBUG] /register: Erstelle Standardfilter für Benutzer');
     await db.query(
       'INSERT INTO user_filters (user_id, min_age, max_age, gender_preference) VALUES (?, ?, ?, ?)',
       [result.insertId, 18, 99, 'all']
     );
+    console.log('[DEBUG] /register: Standardfilter erstellt');
     
     // JWT Token erstellen
     const token = jwt.sign({ id: result.insertId }, 'dating-app-secret-key', { expiresIn: '1d' });
+    console.log('[DEBUG] /register: Token erstellt');
     
     res.status(201).json({
       success: true,
@@ -131,9 +140,10 @@ router.post('/register', async (req, res) => {
         gender
       }
     });
+    console.log('[DEBUG] /register: Registrierung erfolgreich abgeschlossen');
     
   } catch (err) {
-    console.error(err);
+    console.error('[DEBUG] /register: Fehler:', err);
     res.status(500).json({ message: 'Serverfehler' });
   }
 });
@@ -144,12 +154,15 @@ router.get('/logout', (req, res) => {
   res.render('logout', { title: 'Logout' });
 });
 
-// Example route
+// Profile route
 router.get('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
+    console.log('[DEBUG] /profile: Anfrage für Profil, Benutzer-ID:', req.user.id);
     const [rows] = await db.query('SELECT * FROM user WHERE id = ?', [req.user.id]);
+    console.log('[DEBUG] /profile: Profildaten gefunden:', !!rows[0]);
     res.json(rows[0]);
   } catch (err) {
+    console.error('[DEBUG] /profile: Fehler:', err);
     res.status(500).json({ error: 'Database error' });
   }
 });

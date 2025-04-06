@@ -1,6 +1,6 @@
 // middlewares/auth.js
 const jwt = require('jsonwebtoken');
-const passport = require('passport');
+const passport = require('../config/passport');
 const db = require('../config/db');
 
 const authenticateJWT = (req, res, next) => {
