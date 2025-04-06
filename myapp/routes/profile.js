@@ -7,19 +7,30 @@ const db = require('../config/db');
 // Profil anzeigen
 router.get('/', authenticateJWT, async (req, res) => {
   console.log('[DEBUG] /profile: Anfrage für Profil, Benutzer-ID:', req.user.id);
+  console.log('[DEBUG] /profile: Accept Header:', req.headers.accept);
   
   try {
     // Benutzer ist bereits in req.user verfügbar durch die authenticateJWT-Middleware
     const user = req.user;
     console.log('[DEBUG] /profile: Profildaten gefunden:', !!user);
     
-    // EXPLIZITE Unterscheidung basierend auf Accept-Header
-    // Für API-Anfragen (XHR)
-    if (req.xhr || (req.headers.accept && !req.headers.accept.includes('text/html'))) {
+    // PRÄZISERE Unterscheidung für API-Anfragen
+    const isApiRequest = req.xhr || 
+                        (req.headers.accept && 
+                        req.headers.accept.includes('application/json') && 
+                        !req.headers.accept.includes('text/html'));
+    
+    console.log('[DEBUG] /profile: Ist API-Anfrage?', isApiRequest);
+    
+    if (isApiRequest) {
+      console.log('[DEBUG] /profile: Sende JSON-Antwort');
       return res.json(user);
     }
     
     // Für Browser-Anfragen: HTML rendern
+    console.log('[DEBUG] /profile: Sende HTML-Antwort mit Template');
+    
+    // Sicherstellen, dass die erste Zeile der profile.ejs kein Kommentar ist
     res.render('profile', { 
       title: 'Mein Profil',
       user: user
