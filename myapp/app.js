@@ -17,6 +17,9 @@ const peopleRouter = require('./routes/people');
 const filtersRouter = require('./routes/filters');
 const matchesRouter = require('./routes/matches');
 
+// Füge nach den Router-Importen hinzu:
+const { authenticateJWT } = require('./middlewares/auth');
+
 console.log('[DEBUG] app.js: Auth-Router importiert');
 
 const app = express();
@@ -36,8 +39,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
 // Session Setup
+const { SESSION_SECRET } = require('./config/keys');
 app.use(session({
-  secret: 'dating-app-secret',
+  secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: { secure: process.env.NODE_ENV === 'production' }
@@ -45,43 +49,6 @@ app.use(session({
 
 // Alternative Middleware ohne Passport-Abhängigkeit
 const db = require('./config/db');
-
-const SECRET_KEY = 'dating-app-secret-key';
-
-const authenticateJWT = (req, res, next) => {
-  console.log('[DEBUG] middlewares/auth.js: authenticateJWT aufgerufen');
-  
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log('[DEBUG] middlewares/auth.js: Kein gültiger Auth-Header');
-    return res.status(401).json({ message: 'Nicht autorisiert' });
-  }
-  
-  const token = authHeader.substring(7);
-  
-  try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    console.log('[DEBUG] middlewares/auth.js: Token verifiziert, ID:', decoded.id);
-    
-    db.query('SELECT * FROM user WHERE id = ?', [decoded.id])
-      .then(([rows]) => {
-        if (rows.length === 0) {
-          console.log('[DEBUG] middlewares/auth.js: Benutzer nicht gefunden');
-          return res.status(401).json({ message: 'Benutzer nicht gefunden' });
-        }
-        
-        req.user = rows[0];
-        next();
-      })
-      .catch(err => {
-        console.error('[DEBUG] middlewares/auth.js: Datenbankfehler:', err);
-        return res.status(500).json({ message: 'Datenbankfehler' });
-      });
-  } catch (err) {
-    console.error('[DEBUG] middlewares/auth.js: Token-Validierungsfehler:', err);
-    return res.status(401).json({ message: 'Ungültiges Token' });
-  }
-};
 
 // Passport Middleware
 app.use(passport.initialize());
@@ -92,10 +59,12 @@ console.log('[DEBUG] app.js: Passport-Konfiguration geladen');
 // Routen
 app.use('/', authRouter);
 console.log('[DEBUG] app.js: Auth-Router eingerichtet');
-app.use('/profile', profileRouter);
-app.use('/people', peopleRouter);
-app.use('/filters', filtersRouter);
-app.use('/matches', matchesRouter);
+
+// Geschützte Routen mit Middleware
+app.use('/profile', authenticateJWT, profileRouter);
+app.use('/people', authenticateJWT, peopleRouter);
+app.use('/filters', authenticateJWT, filtersRouter);
+app.use('/matches', authenticateJWT, matchesRouter);
 
 // Error Handler
 app.use((err, req, res, next) => {
