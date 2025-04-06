@@ -41,7 +41,9 @@
                 
                 <div class="mb-3">
                   <label for="birthday" class="form-label">Geburtsdatum</label>
-                  <input type="date" class="form-control" id="birthday" name="birthday" value="<%= user.birthday.substring(0, 10) %>" required>
+                  <input type="date" class="form-control" id="birthday" name="birthday" 
+                         value="<%= typeof user.birthday === 'string' ? user.birthday.substring(0, 10) : new Date().toISOString().substring(0, 10) %>" 
+                         required>
                 </div>
                 
                 <div class="d-grid gap-2 d-md-flex mt-4">
