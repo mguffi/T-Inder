@@ -16,7 +16,7 @@ module.exports = pool;
 // config/passport.js
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-const pool = require('./db');
+
 
 module.exports = function(passport) {
   let opts = {};
