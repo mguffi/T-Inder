@@ -10,15 +10,15 @@ router.get('/', authenticateJWT, async (req, res) => {
   console.log('[DEBUG] /profile: Accept Header:', req.headers.accept);
   
   try {
-    // Benutzer ist bereits in req.user verfügbar durch die authenticateJWT-Middleware
     const user = req.user;
     console.log('[DEBUG] /profile: Profildaten gefunden:', !!user);
     
-    // PRÄZISERE Unterscheidung für API-Anfragen
+    // Klarere Unterscheidung zwischen API und Browser
     const isApiRequest = req.xhr || 
                         (req.headers.accept && 
-                        req.headers.accept.includes('application/json') && 
-                        !req.headers.accept.includes('text/html'));
+                         !req.headers.accept.includes('text/html') && 
+                         req.headers.accept.includes('*/*') && 
+                         req.headers.accept.length < 5);
     
     console.log('[DEBUG] /profile: Ist API-Anfrage?', isApiRequest);
     
@@ -30,10 +30,20 @@ router.get('/', authenticateJWT, async (req, res) => {
     // Für Browser-Anfragen: HTML rendern
     console.log('[DEBUG] /profile: Sende HTML-Antwort mit Template');
     
-    // Sicherstellen, dass die erste Zeile der profile.ejs kein Kommentar ist
     res.render('profile', { 
       title: 'Mein Profil',
-      user: user
+      user: user,
+      // Füge die calculateAge-Funktion direkt hier ein, falls sie nicht global verfügbar ist
+      calculateAge: function(birthday) {
+        const birthdayDate = new Date(birthday);
+        const today = new Date();
+        let age = today.getFullYear() - birthdayDate.getFullYear();
+        const m = today.getMonth() - birthdayDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthdayDate.getDate())) {
+          age--;
+        }
+        return age;
+      }
     });
   } catch (err) {
     console.error('[DEBUG] /profile: Fehler beim Laden des Profils:', err);

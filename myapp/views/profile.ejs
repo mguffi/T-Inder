@@ -112,3 +112,27 @@
 
 <!-- Am Ende der Datei, nach dem vorhandenen Script -->
 <script src="/js/profile.js"></script>
+
+```
+
+Dieser Kommentar verhindert, dass EJS die Datei korrekt als Template erkennt. Ein JavaScript-Kommentar am Anfang einer EJS-Datei wird als Code-Block interpretiert und nicht als Kommentar.
+
+3. Teste die Lösung:
+
+Mit diesen Änderungen sollte die Profil-Seite jetzt korrekt als HTML-Seite im Browser angezeigt werden, während API-Anfragen weiterhin JSON erhalten.
+
+## Weitere Verbesserung für die Zukunft
+
+Es wäre sinnvoll, eine einheitliche Funktion für die Unterscheidung zwischen API- und Browser-Anfragen zu erstellen und diese in allen Routen zu verwenden:
+
+```javascript
+// Füge diese Funktion in eine separate Datei, z.B. utils.js
+function isApiRequest(req) {
+  return req.xhr || 
+         (req.headers.accept && 
+          !req.headers.accept.includes('text/html') && 
+          (req.headers.accept.includes('application/json') || 
+           req.headers.accept === '*/*'));
+}
+
+module.exports = { isApiRequest };
