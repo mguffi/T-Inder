@@ -7,11 +7,29 @@ module.exports = function(passport) {
   console.log('[DEBUG] passport.js: Konfiguriere Passport');
   
   const opts = {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    // Custom extractor that checks both header and cookies
+    jwtFromRequest: (req) => {
+      let token = null;
+      
+      // Check Authorization header first
+      if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        token = req.headers.authorization.substring(7);
+      }
+      
+      // If no token found, check cookies
+      if (!token && req.cookies && req.cookies.auth_token) {
+        const cookieToken = req.cookies.auth_token;
+        if (cookieToken.startsWith('Bearer ')) {
+          token = cookieToken.substring(7);
+        }
+      }
+      
+      return token;
+    },
     secretOrKey: JWT_SECRET
   };
   
-  console.log('[DEBUG] passport.js: JWT-Optionen:', JSON.stringify(opts));
+  console.log('[DEBUG] passport.js: JWT-Optionen:', JSON.stringify({secretOrKey: opts.secretOrKey}));
   
   passport.use(
     new JwtStrategy(opts, async (jwt_payload, done) => {

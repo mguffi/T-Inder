@@ -2,6 +2,7 @@
 const jwt = require('jsonwebtoken');
 const passport = require('passport'); // Direkt passport importieren
 const db = require('../config/db');
+const { JWT_SECRET } = require('../config/keys');
 
 // Passport konfigurieren
 require('../config/passport')(passport);
@@ -15,18 +16,29 @@ const authenticateJWT = (req, res, next) => {
   // Falls kein Token im Header, versuche es aus dem Cookie
   if (!token && req.cookies && req.cookies.auth_token) {
     token = req.cookies.auth_token;
-    console.log('[DEBUG] middlewares/auth.js: Token aus Cookie geladen');
+    // Wichtig: Auch für Cookie-Token in den Header setzen, damit Passport es findet
+    req.headers.authorization = token;
+    console.log('[DEBUG] middlewares/auth.js: Token aus Cookie geladen und in Header gesetzt');
   }
   
   console.log('[DEBUG] middlewares/auth.js: Authorization Header/Cookie:', token);
   
   // Token manuell prüfen als Debug
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-    const token = req.headers.authorization.substring(7);
+  if (token && token.startsWith('Bearer ')) {
+    const tokenValue = token.substring(7);
     try {
-      const decoded = jwt.decode(token, { complete: true });
+      const decoded = jwt.decode(tokenValue, { complete: true });
       console.log('[DEBUG] middlewares/auth.js: Token-Header:', decoded.header);
       console.log('[DEBUG] middlewares/auth.js: Token-Payload:', decoded.payload);
+      
+      // Token manuell verifizieren
+      jwt.verify(tokenValue, JWT_SECRET, (err, decoded) => {
+        if (err) {
+          console.error('[DEBUG] middlewares/auth.js: Token Verifizierungsfehler:', err.message);
+        } else {
+          console.log('[DEBUG] middlewares/auth.js: Token erfolgreich verifiziert');
+        }
+      });
     } catch (e) {
       console.error('[DEBUG] middlewares/auth.js: Token-Dekodierung fehlgeschlagen:', e);
     }
@@ -34,7 +46,7 @@ const authenticateJWT = (req, res, next) => {
   
   passport.authenticate('jwt', { session: false }, async (err, user, info) => {
     console.log('[DEBUG] middlewares/auth.js: JWT-Authentifizierung durchgeführt');
-    // Füge info-Objekt zum Debug hinzu
+    // Info-Objekt zum Debug anzeigen
     console.log('[DEBUG] middlewares/auth.js: Auth-Info:', info);
     
     if (err) {
