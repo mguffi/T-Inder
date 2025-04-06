@@ -1,0 +1,105 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+          <h1 class="mb-0"><i class="fas fa-edit"></i> Profil bearbeiten</h1>
+        </div>
+        
+        <div class="card-body">
+          <form id="editProfileForm">
+            <div class="row">
+              <div class="col-lg-4 text-center mb-4">
+                <div class="profile-image-container mb-3">
+                  <img src="<%= user.image_url %>" alt="<%= user.name %>" id="profile-image-preview" class="img-fluid rounded-circle" style="width: 200px; height: 200px; object-fit: cover;">
+                </div>
+                <div class="mb-3">
+                  <label for="image_url" class="form-label">Profilbild URL</label>
+                  <input type="text" class="form-control" id="image_url" name="image_url" value="<%= user.image_url %>">
+                </div>
+              </div>
+              
+              <div class="col-lg-8">
+                <div class="mb-3">
+                  <label for="name" class="form-label">Name</label>
+                  <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Geschlecht</label>
+                  <div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="gender" id="male" value="male" <%= user.gender === 'male' ? 'checked' : '' %>>
+                      <label class="form-check-label" for="male">Männlich</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="gender" id="female" value="female" <%= user.gender === 'female' ? 'checked' : '' %>>
+                      <label class="form-check-label" for="female">Weiblich</label>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="birthday" class="form-label">Geburtsdatum</label>
+                  <input type="date" class="form-control" id="birthday" name="birthday" value="<%= user.birthday.substring(0, 10) %>" required>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex mt-4">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Speichern
+                  </button>
+                  <a href="/profile" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Zurück
+                  </a>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Bilvorschau aktualisieren, wenn URL geändert wird
+    document.getElementById('image_url').addEventListener('change', function() {
+      document.getElementById('profile-image-preview').src = this.value;
+    });
+    
+    // Formular absenden
+    document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = {
+        name: document.getElementById('name').value,
+        gender: document.querySelector('input[name="gender"]:checked').value,
+        birthday: document.getElementById('birthday').value,
+        image_url: document.getElementById('image_url').value
+      };
+      
+      fetch('/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token')
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Profil erfolgreich aktualisiert');
+          window.location.href = '/profile';
+        } else {
+          alert('Fehler: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Fehler:', error);
+        alert('Ein Fehler ist aufgetreten.');
+      });
+    });
+  });
+</script>

@@ -30,6 +30,18 @@ app.set('view engine', 'ejs');
 app.use(expressLayouts);
 app.set('layout', 'layout'); // Set layout.ejs as the default layout
 
+// Füge Helper-Funktionen für EJS-Templates hinzu
+app.locals.calculateAge = function(birthday) {
+  const birthdayDate = new Date(birthday);
+  const today = new Date();
+  let age = today.getFullYear() - birthdayDate.getFullYear();
+  const m = today.getMonth() - birthdayDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthdayDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
 // Middleware
 app.use(logger('dev'));
 app.use(express.json());

@@ -1,121 +1,112 @@
-<!-- views/profile.ejs -->
-<div class="row">
-    <div class="col-lg-4 col-md-5">
-        <div class="card shadow mb-4">
-            <div class="card-body text-center">
-                <img src="<%= user.image_url %>" alt="<%= user.name %>" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                <h3 class="card-title"><%= user.name %>, <%= user.age %></h3>
-                <p class="text-muted">
-                    <i class="<%= user.gender === 'male' ? 'fas fa-mars text-primary' : 'fas fa-venus text-danger' %>"></i>
-                    <%= user.gender === 'male' ? 'Männlich' : 'Weiblich' %>
-                </p>
-                <p class="text-muted">
-                    <i class="fas fa-calendar"></i>
-                    <%= new Date(user.birthday).toLocaleDateString() %>
-                </p>
-            </div>
+ejs -->
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+          <h1 class="mb-0"><i class="fas fa-user"></i> Mein Profil</h1>
         </div>
-    </div>
-    
-    <div class="col-lg-8 col-md-7">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="fas fa-pen"></i> Profil bearbeiten</h4>
+        
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-4 text-center mb-4">
+              <div class="profile-image-container mb-3">
+                <img src="<%= user.image_url %>" alt="<%= user.name %>" class="img-fluid rounded-circle" style="width: 200px; height: 200px; object-fit: cover;">
+              </div>
+              <h3><%= user.name %>, <%= calculateAge(user.birthday) %></h3>
             </div>
-            <div class="card-body">
-                <form id="profile-form">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Geschlecht</label>
-                        <div class="d-flex">
-                            <div class="form-check me-4">
-                                <input class="form-check-input" type="radio" name="gender" id="male" value="male" <%= user.gender === 'male' ? 'checked' : '' %> required>
-                                <label class="form-check-label" for="male">
-                                    <i class="fas fa-mars"></i> Männlich
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="gender" id="female" value="female" <%= user.gender === 'female' ? 'checked' : '' %>>
-                                <label class="form-check-label" for="female">
-                                    <i class="fas fa-venus"></i> Weiblich
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label for="birthday" class="form-label">Geburtsdatum</label>
-                        <input type="date" class="form-control" id="birthday" name="birthday" value="<%= user.birthday.split('T')[0] %>" required>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Änderungen speichern</button>
-                    </div>
-                </form>
+            
+            <div class="col-lg-8">
+              <div class="profile-details">
+                <h4 class="mt-3">Persönliche Informationen</h4>
+                <hr>
+                
+                <div class="mb-3 row">
+                  <div class="col-sm-4"><strong>Name:</strong></div>
+                  <div class="col-sm-8"><%= user.name %></div>
+                </div>
+                
+                <div class="mb-3 row">
+                  <div class="col-sm-4"><strong>Geschlecht:</strong></div>
+                  <div class="col-sm-8"><%= user.gender === 'male' ? 'Männlich' : 'Weiblich' %></div>
+                </div>
+                
+                <div class="mb-3 row">
+                  <div class="col-sm-4"><strong>Geburtsdatum:</strong></div>
+                  <div class="col-sm-8"><%= new Date(user.birthday).toLocaleDateString() %></div>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <a href="/profile/edit" class="btn btn-primary">
+                  <i class="fas fa-edit"></i> Profil bearbeiten
+                </a>
+                <button class="btn btn-outline-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                  <i class="fas fa-trash-alt"></i> Account löschen
+                </button>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+</div>
+
+<!-- Löschbestätigung Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteAccountModalLabel">Account löschen?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Bist du sicher, dass du deinen Account löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteAccount">Löschen bestätigen</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Authentifizierung überprüfen
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/login';
-        return;
+  // Hilfsfunktion für Altersberechnung
+  function calculateAge(birthday) {
+    const birthdayDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthdayDate.getFullYear();
+    const m = today.getMonth() - birthdayDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthdayDate.getDate())) {
+      age--;
     }
-    
-    const profileForm = document.getElementById('profile-form');
-    const successMessage = document.getElementById('success-message');
-    const errorMessage = document.getElementById('error-message');
-    
-    profileForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const name = document.getElementById('name').value;
-        const gender = document.querySelector('input[name="gender"]:checked').value;
-        const birthday = document.getElementById('birthday').value;
-        
-        try {
-            const response = await fetch('/profile', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token
-                },
-                body: JSON.stringify({ name, gender, birthday })
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.message || 'Aktualisierung fehlgeschlagen');
-            }
-            
-            // Erfolgsmeldung anzeigen
-            successMessage.textContent = 'Profil erfolgreich aktualisiert!';
-            successMessage.classList.remove('d-none');
-            
-            // Erfolgsmeldung nach 3 Sekunden ausblenden
-            setTimeout(() => {
-                successMessage.classList.add('d-none');
-            }, 3000);
-            
-            // Benutzer im localStorage aktualisieren
-            const user = JSON.parse(localStorage.getItem('user'));
-            user.name = name;
-            user.gender = gender;
-            localStorage.setItem('user', JSON.stringify(user));
-            
-        } catch (error) {
-            errorMessage.textContent = error.message;
-            errorMessage.classList.remove('d-none');
-        }
+    return age;
+  }
+
+  // Account löschen
+  document.getElementById('confirmDeleteAccount')?.addEventListener('click', function() {
+    fetch('/profile', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('token')
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        // Lösche Token und leite zur Startseite weiter
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/?deleted=true';
+      } else {
+        alert('Fehler beim Löschen des Accounts');
+      }
+    })
+    .catch(error => {
+      console.error('Fehler:', error);
+      alert('Ein Fehler ist aufgetreten.');
     });
-});
+  });
 </script>

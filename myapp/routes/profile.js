@@ -5,41 +5,47 @@ const pool = require('../config/db');
 const { authenticateJWT } = require('../middlewares/auth');
 
 // Profilseite anzeigen
-router.get('/', authenticateJWT, async (req, res) => {
-  try {
-    // Benutzerdaten abrufen
-    const [user] = await pool.query('SELECT id, name, gender, birthday, image_url FROM user WHERE id = ?', [req.user.id]);
-    
-    if (user.length === 0) {
-      return res.status(404).json({ message: 'Benutzer nicht gefunden' });
-    }
-    
-    // Benutzerfilter abrufen
-    const [filters] = await pool.query('SELECT * FROM user_filters WHERE user_id = ?', [req.user.id]);
-    
-    // Alter des Benutzers berechnen
-    const birthday = new Date(user[0].birthday);
-    const ageDifMs = Date.now() - birthday.getTime();
-    const ageDate = new Date(ageDifMs);
-    const age = Math.abs(ageDate.getUTCFullYear() - 1970);
-    
-    res.render('profile', { 
-      title: 'Mein Profil',
-      user: {
-        ...user[0],
-        age
-      },
-      filters: filters[0] || { min_age: 18, max_age: 99, gender_preference: 'all' }
-    });
-    
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Serverfehler' });
+router.get('/', authenticateJWT, (req, res) => {
+  console.log('[DEBUG] /profile: Profilanfrage für Benutzer', req.user.id);
+  
+  // Prüfe den Accept-Header, um zu bestimmen, ob es eine API-Anfrage ist
+  const isApiRequest = req.headers.accept && req.headers.accept.includes('application/json');
+  
+  if (isApiRequest) {
+    // Für API-Anfragen JSON zurückgeben
+    return res.json(req.user);
   }
+  
+  // Für Browser-Anfragen HTML mit EJS rendern
+  // Sensitive Daten wie das Passwort entfernen
+  const userForTemplate = { ...req.user };
+  delete userForTemplate.password;
+  delete userForTemplate.password_hash;
+  
+  res.render('profile', { 
+    title: 'Mein Profil',
+    user: userForTemplate
+  });
+});
+
+// Profil-Bearbeitungsansicht
+router.get('/edit', authenticateJWT, (req, res) => {
+  console.log('[DEBUG] /profile/edit: Profilbearbeitung für Benutzer', req.user.id);
+  
+  const userForEdit = { ...req.user };
+  delete userForEdit.password;
+  delete userForEdit.password_hash;
+  
+  res.render('profile-edit', { 
+    title: 'Profil bearbeiten',
+    user: userForEdit
+  });
 });
 
 // Profil aktualisieren
 router.put('/', authenticateJWT, async (req, res) => {
+  console.log('[DEBUG] /profile PUT: Profilaktualisierung für Benutzer', req.user.id);
+  
   try {
     const { name, gender, birthday } = req.body;
     
