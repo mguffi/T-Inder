@@ -5,8 +5,8 @@ async function initializeDatabase() {
   console.log('Starte die Datenbankinitialisierung...');
   const connection = await mysql.createConnection({
     host: '127.0.0.1', // Ändere localhost zu 127.0.0.1
-    user: 'root',
-    password: 'deinPasswort'
+    user: 'myuser',
+    password: 'meinPasswort'
   });
 
   try {
