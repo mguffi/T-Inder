@@ -44,7 +44,7 @@ app.use(session({
 }));
 
 // Alternative Middleware ohne Passport-Abhängigkeit
-const db = require('../config/db');
+const db = require('./config/db');
 
 const SECRET_KEY = 'dating-app-secret-key';
 
