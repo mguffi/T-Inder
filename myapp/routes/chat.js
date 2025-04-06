@@ -20,20 +20,20 @@ router.get('/:userId', authenticateJWT, async (req, res) => {
       return res.status(403).json({ message: 'Kein Match mit diesem Benutzer' });
     }
     
-    // Nachrichten abrufen
+    // Nachrichten abrufen (is_read statt read)
     const [messages] = await pool.query(`
-      SELECT id, sender_id, recipient_id, content, read, created_at
+      SELECT id, sender_id, recipient_id, content, is_read, created_at
       FROM messages
       WHERE (sender_id = ? AND recipient_id = ?) 
          OR (sender_id = ? AND recipient_id = ?)
       ORDER BY created_at ASC
     `, [currentUserId, otherUserId, otherUserId, currentUserId]);
     
-    // Ungelesene Nachrichten als gelesen markieren
+    // Ungelesene Nachrichten als gelesen markieren (is_read statt read)
     await pool.query(`
       UPDATE messages
-      SET read = TRUE
-      WHERE recipient_id = ? AND sender_id = ? AND read = FALSE
+      SET is_read = TRUE
+      WHERE recipient_id = ? AND sender_id = ? AND is_read = FALSE
     `, [currentUserId, otherUserId]);
     
     // Benutzerdetails des Chat-Partners abrufen

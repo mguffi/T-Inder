@@ -163,7 +163,7 @@ io.on('connection', (socket) => {
         return;
       }
       
-      // Nachricht in Datenbank speichern
+      // Nachricht in Datenbank speichern (is_read statt read)
       const [result] = await db.query(
         'INSERT INTO messages (sender_id, recipient_id, content) VALUES (?, ?, ?)',
         [senderId, recipientId, content]

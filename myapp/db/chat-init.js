@@ -19,7 +19,7 @@ async function initializeChatDatabase() {
         sender_id INT NOT NULL,
         recipient_id INT NOT NULL,
         content TEXT NOT NULL,
-        read BOOLEAN DEFAULT FALSE,
+        is_read BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (sender_id) REFERENCES user(id) ON DELETE CASCADE,
         FOREIGN KEY (recipient_id) REFERENCES user(id) ON DELETE CASCADE
@@ -29,7 +29,7 @@ async function initializeChatDatabase() {
 
     // Testdaten einfügen
     await connection.query(`
-      INSERT INTO messages (sender_id, recipient_id, content, read)
+      INSERT INTO messages (sender_id, recipient_id, content, is_read)
       VALUES
         (1, 2, 'Hallo, wie geht es dir?', true),
         (2, 1, 'Mir geht es gut! Und dir?', true),
