@@ -7,23 +7,19 @@ const db = require('../config/db');
 // Profil anzeigen
 router.get('/', authenticateJWT, async (req, res) => {
   console.log('[DEBUG] /profile: Anfrage für Profil, Benutzer-ID:', req.user.id);
-  console.log('[DEBUG] /profile: Accept Header:', req.headers.accept);
-  console.log('[DEBUG] /profile: Render Template:', req.headers.accept && !req.headers.accept.includes('application/json'));
   
   try {
     // Benutzer ist bereits in req.user verfügbar durch die authenticateJWT-Middleware
     const user = req.user;
     console.log('[DEBUG] /profile: Profildaten gefunden:', !!user);
     
-    // Wichtig: Entscheide zwischen JSON oder HTML basierend auf dem Accept-Header
-    const wantsJson = req.headers.accept && req.headers.accept.includes('application/json');
-    
-    if (wantsJson) {
-      // Wenn es eine API-Anfrage ist, gib JSON zurück
+    // EXPLIZITE Unterscheidung basierend auf Accept-Header
+    // Für API-Anfragen (XHR)
+    if (req.xhr || (req.headers.accept && !req.headers.accept.includes('text/html'))) {
       return res.json(user);
     }
     
-    // Ansonsten render das EJS Template
+    // Für Browser-Anfragen: HTML rendern
     res.render('profile', { 
       title: 'Mein Profil',
       user: user
