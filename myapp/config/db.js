@@ -2,9 +2,9 @@
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
-  host: 'localhost',
+  host: '127.0.0.1', // Ändere localhost zu 127.0.0.1
   user: 'myuser',
-  password: 'meinPasswort',
+  password: 'meinPasswort'
   database: 'dating_app',
   waitForConnections: true,
   connectionLimit: 10,
