@@ -49,26 +49,26 @@ router.put('/', authenticateJWT, async (req, res) => {
   console.log('[DEBUG] /profile PUT: Profilaktualisierung für Benutzer', req.user.id);
   
   try {
-    const { name, gender, birthday } = req.body;
+    const { name, gender, birthday, image_url } = req.body;
     
     // Überprüfen, ob der Name bereits vergeben ist (außer vom aktuellen Benutzer)
     const [existingUsers] = await db.query('SELECT * FROM user WHERE name = ? AND id != ?', [name, req.user.id]);
     
     if (existingUsers.length > 0) {
-      return res.status(400).json({ message: 'Benutzername bereits vergeben' });
+      return res.status(400).json({ success: false, message: 'Benutzername bereits vergeben' });
     }
     
     // Profil aktualisieren
     await db.query(
-      'UPDATE user SET name = ?, gender = ?, birthday = ? WHERE id = ?',
-      [name, gender, birthday, req.user.id]
+      'UPDATE user SET name = ?, gender = ?, birthday = ?, image_url = ? WHERE id = ?',
+      [name, gender, birthday, image_url, req.user.id]
     );
     
-    res.json({ message: 'Profil erfolgreich aktualisiert' });
+    res.json({ success: true, message: 'Profil erfolgreich aktualisiert' });
     
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Serverfehler' });
+    res.status(500).json({ success: false, message: 'Serverfehler' });
   }
 });
 
