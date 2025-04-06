@@ -6,49 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %> | Dating App</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/style.css">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/">Dating App</a>
+            <a class="navbar-brand" href="/">T-Inder</a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
+            <!-- Ändere den Navigationsbereich -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/people"><i class="fas fa-users"></i> Entdecken</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/matches"><i class="fas fa-heart"></i> Matches</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/filters"><i class="fas fa-filter"></i> Filter</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/profile"><i class="fas fa-user"></i> Profil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                        </li>
-                    <% } else { %>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt"></i> Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/register"><i class="fas fa-user-plus"></i> Registrieren</a>
-                        </li>
-                    <% } %>
-                </ul>
+                <!-- Navigation wird dynamisch mit JavaScript gefüllt -->
             </div>
         </div>
     </nav>
@@ -59,19 +35,22 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-3 mt-auto">
+    <footer class="mt-5 py-3 bg-light">
         <div class="container text-center">
-            <p class="mb-0">&copy; 2025 Dating App</p>
+            <p class="mb-0">© 2024 T-Inder - Entwickelt mit ❤️</p>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- JWT Handler -->
+    <!-- In layout.ejs für Testzwecke -->
+    <button id="test-auth-button" style="position: fixed; bottom: 10px; right: 10px; z-index: 999;">Test Auth</button>
+    <script src="/js/test-auth.js"></script>
+
+    <!-- Lade zuerst die Auth-Scripts -->
+    <script src="/js/fetch_auth.js"></script>
     <script src="/js/auth.js"></script>
-    <!-- Custom JS -->
     <script src="/js/main.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
