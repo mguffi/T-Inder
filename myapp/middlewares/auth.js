@@ -1,7 +1,10 @@
 // middlewares/auth.js
 const jwt = require('jsonwebtoken');
-const passport = require('../config/passport');
+const passport = require('passport'); // Direkt passport importieren
 const db = require('../config/db');
+
+// Passport konfigurieren
+require('../config/passport')(passport);
 
 const authenticateJWT = (req, res, next) => {
   console.log('[DEBUG] middlewares/auth.js: authenticateJWT aufgerufen');
@@ -21,8 +24,6 @@ const authenticateJWT = (req, res, next) => {
     
     console.log('[DEBUG] middlewares/auth.js: Benutzer gefunden, ID:', user.id);
     
-    // Hier ist der Fehler - es gibt keine Variable 'email'
-    // Stattdessen sollten wir user.id verwenden, die von Passport bereitgestellt wird
     try {
       // Aktualisiere den Benutzer mit den neuesten Daten aus der Datenbank
       console.log('[DEBUG] middlewares/auth.js: Hole aktuelle Benutzerdaten, ID:', user.id);
