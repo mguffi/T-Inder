@@ -5,10 +5,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db'); // Import the pool once
 
+console.log('[DEBUG] auth.js: Pool importiert:', typeof pool);
+console.log('[DEBUG] auth.js: Pool hat query?', typeof pool.query === 'function');
+console.log('[DEBUG] auth.js: Pool Methoden:', Object.keys(pool));
+
 const router = express.Router();
 
 // Login-Seite rendern
-console.log('Pool:', pool);
 router.get('/login', (req, res) => {
   res.render('login', { title: 'Login' });
 });
@@ -21,27 +24,42 @@ router.get('/register', (req, res) => {
 // Login-Verarbeitung
 router.post('/login', async (req, res) => {
   try {
+    console.log('[DEBUG] /login: Anfrage erhalten:', req.body);
     const { email, password } = req.body;
+    console.log('[DEBUG] /login: E-Mail:', email, 'Passwort vorhanden:', !!password);
+    
+    console.log('[DEBUG] /login: Pool-Typ:', typeof pool);
+    console.log('[DEBUG] /login: Pool Methoden:', Object.keys(pool));
+    console.log('[DEBUG] /login: Pool.query vorhanden?', typeof pool.query === 'function');
     
     // Benutzer in der Datenbank suchen
+    console.log('[DEBUG] /login: Versuche Datenbankabfrage mit name =', email);
     const [rows] = await pool.query('SELECT * FROM user WHERE name = ?', [email]);
+    console.log('[DEBUG] /login: Datenbankabfrage erfolgreich, gefundene Einträge:', rows.length);
     
     if (rows.length === 0) {
+      console.log('[DEBUG] /login: Kein Benutzer gefunden');
       return res.status(401).json({ message: 'E-Mail oder Passwort falsch' });
     }
     
     const user = rows[0];
+    console.log('[DEBUG] /login: Benutzer gefunden:', user.id, user.name);
     
-    // Passwort überprüfen (In diesem Fall ist das Passwort "password123" für alle Benutzer)
+    // Passwort überprüfen
+    console.log('[DEBUG] /login: Überprüfe Passwort. Hash vorhanden:', !!user.password_hash);
     const isMatch = await bcrypt.compare(password, user.password_hash);
+    console.log('[DEBUG] /login: Passwortvergleich Ergebnis:', isMatch);
     
     if (!isMatch) {
+      console.log('[DEBUG] /login: Passwort stimmt nicht überein');
       return res.status(401).json({ message: 'E-Mail oder Passwort falsch' });
     }
     
     // JWT Token erstellen
+    console.log('[DEBUG] /login: Erstelle JWT Token');
     const token = jwt.sign({ id: user.id }, 'dating-app-secret-key', { expiresIn: '1d' });
     
+    console.log('[DEBUG] /login: Login erfolgreich, sende Antwort');
     res.json({
       success: true,
       token: `Bearer ${token}`,
@@ -53,7 +71,7 @@ router.post('/login', async (req, res) => {
     });
     
   } catch (err) {
-    console.error(err);
+    console.error('[DEBUG] /login: Fehler:', err);
     res.status(500).json({ message: 'Serverfehler' });
   }
 });

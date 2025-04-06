@@ -8,12 +8,16 @@ const passport = require('passport');
 const cors = require('cors');
 const expressLayouts = require('express-ejs-layouts');
 
+console.log('[DEBUG] app.js: App-Initialisierung gestartet');
+
 // Importieren der Routen
 const authRouter = require('./routes/auth');
 const profileRouter = require('./routes/profile');
 const peopleRouter = require('./routes/people');
 const filtersRouter = require('./routes/filters');
 const matchesRouter = require('./routes/matches');
+
+console.log('[DEBUG] app.js: Auth-Router importiert');
 
 const app = express();
 
@@ -41,10 +45,13 @@ app.use(session({
 
 // Passport Middleware
 app.use(passport.initialize());
+console.log('[DEBUG] app.js: Passport initialisiert');
 require('./config/passport')(passport);
+console.log('[DEBUG] app.js: Passport-Konfiguration geladen');
 
 // Routen
 app.use('/', authRouter);
+console.log('[DEBUG] app.js: Auth-Router eingerichtet');
 app.use('/profile', profileRouter);
 app.use('/people', peopleRouter);
 app.use('/filters', filtersRouter);
