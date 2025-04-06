@@ -4,7 +4,7 @@ const mysql = require('mysql2/promise');
 async function initializeDatabase() {
   console.log('Starte die Datenbankinitialisierung...');
   const connection = await mysql.createConnection({
-    host: 'localhost',
+    host: '127.0.0.1', // Ändere localhost zu 127.0.0.1
     user: 'root',
     password: 'deinPasswort'
   });
