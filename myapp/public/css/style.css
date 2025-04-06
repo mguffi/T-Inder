@@ -9,7 +9,7 @@
 }
 
 body {
-  background-color: #f8f9fa;
+  background-color: #75abe1;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -65,4 +65,53 @@ body {
 /* Footer */
 footer {
   margin-top: auto;
+}
+
+/* Chat-Styling */
+.message-bubble {
+  max-width: 70%;
+  border-radius: 18px;
+  word-break: break-word;
+}
+
+.message-bubble.sent {
+  border-bottom-right-radius: 5px;
+  background-color: #0d6efd;
+  color: white;
+}
+
+.message-bubble.received {
+  border-bottom-left-radius: 5px;
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  overflow-y: auto;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+
+.mw-75 {
+  max-width: 75%;
+}
+
+/* Ungelesene Nachrichten-Badge */
+.unread-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #ff4d6d;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
 }
