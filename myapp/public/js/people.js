@@ -1,33 +1,36 @@
 // Skript zur Handhabung der /people Seite
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('People-Seite geladen');
+  console.log('people.js: Seite geladen');
   
-  // Überprüfe, ob ein Token vorhanden ist
+  // Token aus localStorage abrufen
   const token = localStorage.getItem('token');
   if (!token) {
-    console.error('Kein Token gefunden, Umleitung zur Login-Seite');
+    console.log('Kein Token gefunden, Umleitung zur Login-Seite');
     window.location.href = '/login';
     return;
   }
   
-  console.log('Token gefunden:', token.substring(0, 20) + '...');
-  
-  // Manuelle Anfrage mit Token
+  // Mach einen expliziten Authentifizierungstest
   fetch('/people', {
     headers: {
-      'Authorization': localStorage.getItem('token')
+      'Authorization': token
     }
   })
   .then(response => {
-    console.log('People-Antwort Status:', response.status);
+    if (!response.ok) {
+      throw new Error('Nicht autorisiert');
+    }
     return response.json();
   })
   .then(data => {
-    console.log('People-Daten geladen:', data);
-    // Hier Daten anzeigen
+    console.log('Authentifizierung erfolgreich:', data);
+    // Hier kannst du die Seiteninhalte dynamisch rendern
   })
   .catch(error => {
-    console.error('Fehler beim Laden der People-Daten:', error);
+    console.error('Fehler:', error);
+    alert('Authentifizierungsfehler. Bitte erneut einloggen.');
+    localStorage.removeItem('token');
+    window.location.href = '/login';
   });
 });

@@ -8,7 +8,17 @@ require('../config/passport')(passport);
 
 const authenticateJWT = (req, res, next) => {
   console.log('[DEBUG] middlewares/auth.js: authenticateJWT aufgerufen');
-  console.log('[DEBUG] middlewares/auth.js: Authorization Header:', req.headers.authorization);
+  
+  // Token aus Header oder Cookie extrahieren
+  let token = req.headers.authorization;
+  
+  // Falls kein Token im Header, versuche es aus dem Cookie
+  if (!token && req.cookies && req.cookies.auth_token) {
+    token = req.cookies.auth_token;
+    console.log('[DEBUG] middlewares/auth.js: Token aus Cookie geladen');
+  }
+  
+  console.log('[DEBUG] middlewares/auth.js: Authorization Header/Cookie:', token);
   
   // Token manuell prüfen als Debug
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {

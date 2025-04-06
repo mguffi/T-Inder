@@ -75,6 +75,13 @@ router.post('/login', async (req, res) => {
     console.log('[DEBUG] /login: Generiertes Token:', token);
     console.log('[DEBUG] /login: Vollständiges Token mit Bearer-Präfix:', fullToken);
     
+    // Token als HTTP-only Cookie setzen
+    res.cookie('auth_token', fullToken, { 
+      httpOnly: true, 
+      maxAge: 24 * 60 * 60 * 1000, // 1 Tag
+      secure: process.env.NODE_ENV === 'production' 
+    });
+    
     console.log('[DEBUG] /login: Login erfolgreich, sende Antwort');
     res.json({
       success: true,
