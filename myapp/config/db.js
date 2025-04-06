@@ -2,7 +2,7 @@
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
-  host: '127.0.0.1', // Ändere localhost zu 127.0.0.1
+  host: '127.0.0.1',
   user: 'myuser',
   password: 'meinPasswort',
   database: 'dating_app',
@@ -16,7 +16,6 @@ module.exports = pool;
 // config/passport.js
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-
 
 module.exports = function(passport) {
   let opts = {};
