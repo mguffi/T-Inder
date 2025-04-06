@@ -1,0 +1,124 @@
+<!-- views/profile.ejs -->
+<div class="row">
+    <div class="col-lg-4 col-md-5">
+        <div class="card shadow mb-4">
+            <div class="card-body text-center">
+                <img src="<%= user.image_url %>" alt="<%= user.name %>" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                <h3 class="card-title"><%= user.name %>, <%= user.age %></h3>
+                <p class="text-muted">
+                    <i class="<%= user.gender === 'male' ? 'fas fa-mars text-primary' : 'fas fa-venus text-danger' %>"></i>
+                    <%= user.gender === 'male' ? 'Männlich' : 'Weiblich' %>
+                </p>
+                <p class="text-muted">
+                    <i class="fas fa-calendar"></i>
+                    <%= new Date(user.birthday).toLocaleDateString() %>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8 col-md-7">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-pen"></i> Profil bearbeiten</h4>
+            </div>
+            <div class="card-body">
+                <div id="success-message" class="alert alert-success d-none"></div>
+                <div id="error-message" class="alert alert-danger d-none"></div>
+                
+                <form id="profile-form">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Geschlecht</label>
+                        <div class="d-flex">
+                            <div class="form-check me-4">
+                                <input class="form-check-input" type="radio" name="gender" id="male" value="male" <%= user.gender === 'male' ? 'checked' : '' %> required>
+                                <label class="form-check-label" for="male">
+                                    <i class="fas fa-mars"></i> Männlich
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gender" id="female" value="female" <%= user.gender === 'female' ? 'checked' : '' %>>
+                                <label class="form-check-label" for="female">
+                                    <i class="fas fa-venus"></i> Weiblich
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="birthday" class="form-label">Geburtsdatum</label>
+                        <input type="date" class="form-control" id="birthday" name="birthday" value="<%= user.birthday.split('T')[0] %>" required>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Änderungen speichern</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Authentifizierung überprüfen
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    const profileForm = document.getElementById('profile-form');
+    const successMessage = document.getElementById('success-message');
+    const errorMessage = document.getElementById('error-message');
+    
+    profileForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('name').value;
+        const gender = document.querySelector('input[name="gender"]:checked').value;
+        const birthday = document.getElementById('birthday').value;
+        
+        try {
+            const response = await fetch('/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify({ name, gender, birthday })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'Aktualisierung fehlgeschlagen');
+            }
+            
+            // Erfolgsmeldung anzeigen
+            successMessage.textContent = 'Profil erfolgreich aktualisiert!';
+            successMessage.classList.remove('d-none');
+            
+            // Erfolgsmeldung nach 3 Sekunden ausblenden
+            setTimeout(() => {
+                successMessage.classList.add('d-none');
+            }, 3000);
+            
+            // Benutzer im localStorage aktualisieren
+            const user = JSON.parse(localStorage.getItem('user'));
+            user.name = name;
+            user.gender = gender;
+            localStorage.setItem('user', JSON.stringify(user));
+            
+        } catch (error) {
+            errorMessage.textContent = error.message;
+            errorMessage.classList.remove('d-none');
+        }
+    });
+});
+</script>

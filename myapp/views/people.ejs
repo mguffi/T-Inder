@@ -1,0 +1,125 @@
+<!-- views/people.ejs -->
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-users"></i> Entdecken</h4>
+            </div>
+            
+            <div class="card-body p-0">
+                <div id="profile-card" class="text-center p-4">
+                    <div class="profile-image-container position-relative mb-3">
+                        <img src="<%= profile.image_url %>" alt="<%= profile.name %>" class="rounded-circle img-fluid" style="width: 200px; height: 200px; object-fit: cover;">
+                    </div>
+                    
+                    <h2 class="mb-1"><%= profile.name %>, <%= profile.age %></h2>
+                    <p class="text-muted mb-4">
+                        <i class="<%= profile.gender === 'male' ? 'fas fa-mars text-primary' : 'fas fa-venus text-danger' %>"></i>
+                        <%= profile.gender === 'male' ? 'Männlich' : 'Weiblich' %>
+                    </p>
+                    
+                    <div class="d-flex justify-content-center gap-4">
+                        <button id="dislike-btn" class="btn btn-lg btn-danger rounded-circle" data-id="<%= profile.id %>">
+                            <i class="fas fa-times fa-2x"></i>
+                        </button>
+                        <button id="like-btn" class="btn btn-lg btn-success rounded-circle" data-id="<%= profile.id %>">
+                            <i class="fas fa-heart fa-2x"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Match Modal -->
+<div class="modal fade" id="matchModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Match!</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-heart text-danger fa-4x mb-3"></i>
+                <h4>Du hast ein Match mit <%= profile.name %>!</h4>
+                <p>Ihr habt euch gegenseitig geliked.</p>
+            </div>
+            <div class="modal-footer">
+                <a href="/matches" class="btn btn-secondary">Zu meinen Matches</a>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Weiter entdecken</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Authentifizierung überprüfen
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    const likeBtn = document.getElementById('like-btn');
+    const dislikeBtn = document.getElementById('dislike-btn');
+    const profileId = likeBtn.getAttribute('data-id');
+    
+    // Like-Button
+    likeBtn.addEventListener('click', async function() {
+        try {
+            const response = await fetch(`/people/like/${profileId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': token
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'Like fehlgeschlagen');
+            }
+            
+            // Bei Match Modal anzeigen
+            if (data.match) {
+                const matchModal = new bootstrap.Modal(document.getElementById('matchModal'));
+                matchModal.show();
+            } else {
+                // Zum nächsten Profil
+                window.location.href = '/people';
+            }
+            
+        } catch (error) {
+            console.error(error);
+            alert('Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.');
+        }
+    });
+    
+    // Dislike-Button
+    dislikeBtn.addEventListener('click', async function() {
+        try {
+            const response = await fetch(`/people/dislike/${profileId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': token
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'Dislike fehlgeschlagen');
+            }
+            
+            // Zum nächsten Profil
+            window.location.href = '/people';
+            
+        } catch (error) {
+            console.error(error);
+            alert('Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.');
+        }
+    });
+});
+</script>

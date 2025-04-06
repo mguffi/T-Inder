@@ -1,0 +1,128 @@
+<!-- views/filters.ejs -->
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-filter"></i> Filter-Einstellungen</h4>
+            </div>
+            
+            <div class="card-body">
+                <div id="success-message" class="alert alert-success d-none"></div>
+                <div id="error-message" class="alert alert-danger d-none"></div>
+                
+                <form id="filters-form">
+                    <div class="mb-4">
+                        <label class="form-label">Ich möchte sehen:</label>
+                        <div class="d-flex">
+                            <div class="form-check me-4">
+                                <input class="form-check-input" type="radio" name="gender_preference" id="male" value="male" <%= filters.gender_preference === 'male' ? 'checked' : '' %>>
+                                <label class="form-check-label" for="male">
+                                    <i class="fas fa-mars"></i> Männer
+                                </label>
+                            </div>
+                            <div class="form-check me-4">
+                                <input class="form-check-input" type="radio" name="gender_preference" id="female" value="female" <%= filters.gender_preference === 'female' ? 'checked' : '' %>>
+                                <label class="form-check-label" for="female">
+                                    <i class="fas fa-venus"></i> Frauen
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gender_preference" id="all" value="all" <%= filters.gender_preference === 'all' ? 'checked' : '' %>>
+                                <label class="form-check-label" for="all">
+                                    <i class="fas fa-venus-mars"></i> Alle
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="age-range" class="form-label">Altersbereich: <span id="age-display"><%= filters.min_age %> - <%= filters.max_age %> Jahre</span></label>
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label small">Mindestalter:</label>
+                                <input type="range" class="form-range" id="min-age" min="18" max="99" value="<%= filters.min_age %>" oninput="updateAgeDisplay()">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Höchstalter:</label>
+                                <input type="range" class="form-range" id="max-age" min="18" max="99" value="<%= filters.max_age %>" oninput="updateAgeDisplay()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Filter speichern</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Alterspanne anzeigen
+function updateAgeDisplay() {
+    const minAge = document.getElementById('min-age').value;
+    const maxAge = document.getElementById('max-age').value;
+    document.getElementById('age-display').textContent = `${minAge} - ${maxAge} Jahre`;
+    
+    // Sicherstellen, dass min_age nicht größer als max_age ist
+    if (parseInt(minAge) > parseInt(maxAge)) {
+        document.getElementById('max-age').value = minAge;
+        updateAgeDisplay();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Authentifizierung überprüfen
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    const filtersForm = document.getElementById('filters-form');
+    const successMessage = document.getElementById('success-message');
+    const errorMessage = document.getElementById('error-message');
+    
+    // Initial Altersanzeige aktualisieren
+    updateAgeDisplay();
+    
+    filtersForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const gender_preference = document.querySelector('input[name="gender_preference"]:checked').value;
+        const min_age = document.getElementById('min-age').value;
+        const max_age = document.getElementById('max-age').value;
+        
+        try {
+            const response = await fetch('/filters', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify({ gender_preference, min_age, max_age })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'Fehler beim Speichern der Filter');
+            }
+            
+            // Erfolgsmeldung anzeigen
+            successMessage.textContent = 'Filter erfolgreich gespeichert!';
+            successMessage.classList.remove('d-none');
+            
+            // Erfolgsmeldung nach 3 Sekunden ausblenden
+            setTimeout(() => {
+                successMessage.classList.add('d-none');
+            }, 3000);
+            
+        } catch (error) {
+            errorMessage.textContent = error.message;
+            errorMessage.classList.remove('d-none');
+        }
+    });
+});
+</script>
