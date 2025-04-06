@@ -1,9 +1,11 @@
 // routes/auth.js
 const express = require('express');
-const router = express.Router();
+const passport = require('passport');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const pool = require('../config/db');
+const pool = require('../config/db'); // Import the pool once
+
+const router = express.Router();
 
 // Login-Seite rendern
 router.get('/login', (req, res) => {
@@ -111,6 +113,16 @@ router.post('/register', async (req, res) => {
 router.get('/logout', (req, res) => {
   // Da wir JWT verwenden, müssen wir auf Client-Seite das Token löschen
   res.render('logout', { title: 'Logout' });
+});
+
+// Example route
+router.get('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM user WHERE id = ?', [req.user.id]);
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 module.exports = router;

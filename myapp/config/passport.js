@@ -1,6 +1,6 @@
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-const pool = require('./db');
+const pool = require('./db'); // Import the pool from db.js
 
 module.exports = function (passport) {
   let opts = {};
