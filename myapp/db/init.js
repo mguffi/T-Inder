@@ -28,7 +28,8 @@ async function initializeDatabase() {
         gender VARCHAR(10) NOT NULL,
         birthday DATE NOT NULL,
         image_url TEXT NOT NULL,
-        password_hash VARCHAR(255) NOT NULL
+        password_hash VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL,
       )
     `);
     console.log('User-Tabelle erstellt oder bereits vorhanden.');
