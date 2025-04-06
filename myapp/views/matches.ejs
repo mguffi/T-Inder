@@ -1,0 +1,76 @@
+<div class="row justify-content-center">
+  <div class="col-lg-8 col-md-10">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0"><i class="fas fa-heart"></i> Meine Matches</h4>
+      </div>
+      
+      <div class="card-body">
+        <% if (matches && matches.length > 0) { %>
+          <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <% matches.forEach(match => { %>
+              <div class="col">
+                <div class="card h-100 shadow-sm">
+                  <div class="card-img-top text-center pt-3">
+                    <img src="<%= match.image_url %>" alt="<%= match.name %>" class="rounded-circle img-fluid" style="width: 120px; height: 120px; object-fit: cover;">
+                  </div>
+                  <div class="card-body text-center">
+                    <h5 class="card-title"><%= match.name %>, <%= match.age %></h5>
+                    <p class="text-muted">
+                      <i class="<%= match.gender === 'male' ? 'fas fa-mars text-primary' : 'fas fa-venus text-danger' %>"></i>
+                      <%= match.gender === 'male' ? 'Männlich' : 'Weiblich' %>
+                    </p>
+                    <!-- Hier könnten später Chat-Funktionen, etc. hinzugefügt werden -->
+                    <a href="#" class="btn btn-sm btn-primary match-chat" data-id="<%= match.id %>" data-name="<%= match.name %>">
+                      <i class="fas fa-comments"></i> Chat starten
+                    </a>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="text-center py-5">
+            <i class="fas fa-heart-broken text-secondary fa-4x mb-3"></i>
+            <h4>Du hast noch keine Matches</h4>
+            <p>Beginne mit dem Entdecken neuer Profile, um Matches zu finden.</p>
+            <a href="/people" class="btn btn-primary mt-3">
+              <i class="fas fa-users"></i> Entdecken
+            </a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Modal (Platzhalter für zukünftige Funktionalität) -->
+<div class="modal fade" id="chatModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="fas fa-comments"></i> Chat mit <span id="chat-partner-name"></span></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="chat-messages p-3" style="height: 300px; overflow-y: auto;">
+          <div class="text-center text-muted py-5">
+            <i class="fas fa-comment-dots fa-3x mb-3"></i>
+            <p>Diese Funktion ist noch in Entwicklung.</p>
+          </div>
+        </div>
+        <div class="chat-input p-2 border-top">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Nachricht schreiben..." disabled>
+            <button class="btn btn-primary" type="button" disabled>
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script für Matches-Funktionalität -->
+<script src="/js/matches.js"></script>
