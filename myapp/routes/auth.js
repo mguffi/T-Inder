@@ -8,6 +8,7 @@ const pool = require('../config/db'); // Import the pool once
 const router = express.Router();
 
 // Login-Seite rendern
+console.log('Pool:', pool);
 router.get('/login', (req, res) => {
   res.render('login', { title: 'Login' });
 });
