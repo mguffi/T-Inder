@@ -141,3 +141,119 @@ myapp/
 ---
 
 (Der komplette Text ist zu lang für eine Zelle – wird im nächsten Schritt fortgesetzt.)
+
+
+## Umsetzung und Architektur
+
+### Technologie-Stack
+
+**Frontend**
+- HTML/EJS (Embedded JavaScript Templates)
+- CSS mit Bootstrap 5
+- JavaScript (Client-seitig)
+- Font Awesome für Icons
+
+**Backend**
+- Node.js
+- Express.js
+- MySQL
+- Passport.js für Authentifizierung
+- JSON Web Tokens (JWT)
+- Socket.io für Echtzeit-Chat
+
+### Architektur
+- **Models:** SQL-Abfragen direkt in den Routern
+- **Views:** EJS-Templates im `/views`-Ordner
+- **Controllers:** Express.js-Router im `/routes`-Ordner
+
+## ERM-Modell
+
+```
++----------------+       +-----------------+       +----------------+
+|      USER      |       |     MATCHES     |       |     DISLIKES   |
++----------------+       +-----------------+       +----------------+
+| id (PK)        |<----->| user_id (FK)    |       | id (PK)        |
+| name           |       | liked_user_id   |       | user_id (FK)   |
+| gender         |       +-----------------+       | disliked_user_id |
+| birthday       |                                 | dislike_count   |
+| image_url      |                                 | created_at      |
+| password_hash  |                                 +----------------+
++----------------+
+
+        ^
+        |
+        v
+
++------------------+        +----------------+
+| USER_FILTERS     |        |    MESSAGES    |
++------------------+        +----------------+
+| user_id (FK,PK)  |        | id (PK)        |
+| min_age          |        | sender_id (FK) |
+| max_age          |        | recipient_id   |
+| gender_preference|        | content        |
++------------------+        | is_read        |
+                            | created_at     |
+                            +----------------+
+```
+
+## Test-Dokumentation
+
+### Getestete Funktionen
+- Registrierung & Login (inkl. Fehlerfälle)
+- JWT-Token-Verwaltung
+- Profilerstellung & Bearbeitung
+- Like/Dislike, Matches
+- Filterlogik
+- Echtzeit-Chat mit Socket.io
+
+### Testmethodik
+- Manuelle Tests aller Funktionen
+- Edge Cases und Fehlerszenarien
+- Debugging mit Logging
+- Cross-Browser-Tests
+
+## Benutzerdokumentation
+
+### Erste Schritte
+
+**Registrierung**
+1. Öffne Startseite
+2. Registrieren mit Name, Geschlecht, Geburtstag, Passwort
+
+**Login**
+1. Login-Seite öffnen
+2. Mit Anmeldedaten einloggen
+
+**Navigation**
+- Entdecken
+- Matches
+- Filter
+- Profil
+- Logout
+
+### Profil verwalten
+
+- Profil anzeigen, bearbeiten, löschen
+
+### Dating-Funktionen
+
+- Zufällige Profile liken/disliken
+- Filter nach Alter und Geschlecht
+- Matches einsehen und chatten
+
+### Echtzeit-Chat
+
+- Mit Matches chatten
+- Nachrichten werden live angezeigt
+- Gelesen/Ungelesen-Status
+
+### Logout
+
+- Abmelden über Menüpunkt "Logout"
+
+### Hinweise
+
+- Dislikes werden nach 10 Interaktionen zurückgesetzt
+- Profilbilder über gültige Bild-URLs
+- Chats nur aktiv bei Online-Status
+
