@@ -226,7 +226,7 @@ myapp/
     └── register.ejs        # Registrierungsseite
 ```
 
-## Architektur und technische Umsetzung
+## ⚙️Architektur und technische Umsetzung
 
 ### Technologie-Stack
 
@@ -329,7 +329,7 @@ Das Chat-System basiert auf Socket.io und umfasst:
                            +----------------+
 ```
 
-### Beziehungen
+### ⚙️Beziehungen
 
 1. **USER ↔ MATCHES**:
    - Ein Benutzer kann mehrere andere Benutzer liken (1:n)
@@ -458,7 +458,7 @@ Für zukünftige Versionen sind folgende Tests geplant:
    - XSS-Tests
    - CSRF-Tests
 
-## Benutzerdokumentation
+## 🧠Benutzerdokumentation
 
 ### Erste Schritte
 
@@ -510,7 +510,7 @@ Für zukünftige Versionen sind folgende Tests geplant:
 5. Nach der Bestätigung wird Ihr Account mit allen Daten unwiderruflich gelöscht
 6. Sie werden zur Startseite weitergeleitet und automatisch abgemeldet
 
-### Matching-Funktionen
+### 🧠Matching-Funktionen
 
 #### Profile entdecken
 1. Klicken Sie in der Navigation auf "Entdecken"
@@ -543,7 +543,7 @@ Für zukünftige Versionen sind folgende Tests geplant:
 3. Klicken Sie auf "Filter speichern"
 4. Die neuen Filtereinstellungen werden sofort angewendet
 
-### Kommunikation mit Matches
+### 👤Kommunikation mit Matches
 
 #### Matches anzeigen
 1. Klicken Sie in der Navigation auf "Matches"
@@ -562,14 +562,14 @@ Für zukünftige Versionen sind folgende Tests geplant:
 5. Im mittleren Bereich werden die Nachrichten angezeigt
 6. Im unteren Bereich befindet sich das Eingabefeld
 
-#### Nachrichten senden und empfangen
+#### 👤Nachrichten senden und empfangen
 1. Geben Sie Ihre Nachricht in das Textfeld ein
 2. Drücken Sie auf die Senden-Taste oder die Enter-Taste
 3. Die Nachricht wird sofort gesendet und erscheint im Chat-Verlauf
 4. Eingehende Nachrichten erscheinen automatisch im Chat-Fenster, wenn Sie online sind
 5. Ungelesene Nachrichten werden besonders hervorgehoben
 
-### Tipps und Tricks
+### ✅Tipps und Tricks
 
 1. **Optimales Profilbild**: Wählen Sie ein Bild, das Ihr Gesicht deutlich zeigt und zu Ihrem Charakter passt
 2. **Profilbeschreibung**: Nutzen Sie die Möglichkeit, sich durch einen guten Namen zu präsentieren
@@ -583,9 +583,9 @@ Für zukünftige Versionen sind folgende Tests geplant:
 - Profilbilder werden über URLs eingebunden, daher müssen Sie eine gültige Bild-URL verwenden
 - Chatnachrichten werden in Echtzeit übermittelt, wenn beide Benutzer online sind
 
-## Entwicklungsdokumentation
+##🧪 Entwicklungsdokumentation
 
-### Entwicklungsprozess
+###🧪 Entwicklungsprozess
 
 Der Entwicklungsprozess von T-Inder folgte einem agilen, iterativen Ansatz:
 
@@ -631,7 +631,7 @@ Der Entwicklungsprozess von T-Inder folgte einem agilen, iterativen Ansatz:
    - Leistungsoptimierungen vorgenommen
    - Dokumentation erstellt
 
-### Erweiterbarkeit
+### 📌Erweiterbarkeit
 
 T-Inder wurde mit Erweiterbarkeit im Sinn entwickelt:
 
@@ -647,7 +647,7 @@ T-Inder wurde mit Erweiterbarkeit im Sinn entwickelt:
    - RESTful API-Design für zukünftige Mobile-Apps
    - Socket.io für Echtzeit-Funktionen
 
-## Sicherheitsaspekte
+## 📌Sicherheitsaspekte
 
 T-Inder implementiert folgende Sicherheitsmaßnahmen:
 
@@ -711,4 +711,4 @@ Für zukünftige Versionen sind folgende Erweiterungen geplant:
 
 ---
 
-© 2024 T-Inder-Entwicklungsteam. Alle Rechte vorbehalten.
+© ❤️2024 T-Inder-Entwicklungsteam. Alle Rechte vorbehalten.
