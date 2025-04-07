@@ -10,17 +10,10 @@ npm install socket.io
 npm install moment
 sudo apt install -y mysql-server
 sudo service mysql start
-sudo mysql
-
-CREATE USER 'myuser'@'localhost' IDENTIFIED BY 'meinPasswort';
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX ON *.* TO 'myuser'@'localhost';
-ALTER USER 'myuser'@'localhost' IDENTIFIED WITH mysql_native_password BY 'meinPasswort';
-FLUSH PRIVILEGES;
-EXIT;
-sudo usermod -a -G mysql $USER
-sudo chmod o+rx /var/run/mysqld/
 
 node db/db_user.js
+bei der abfrage die 2 auswählen
+es wird ein user mit allen wichtigen privilegien erstellt und die anderen init dateien ausgeführt um alle tabellen zu erstellen und zu füllen
 
 user myuser passwort meinPasswort
 
