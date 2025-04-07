@@ -1,313 +1,143 @@
-# T-Inder Dating App
 
-A Node.js-based dating application with matching functionality, real-time chat, and user profile management.
+# T-Inder – Eine einfache Web-Dating-App
 
-## Table of Contents
-
-- [Installation](#installation)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Architecture](#architecture)
-- [Database Model](#database-model)
-- [API Endpoints](#api-endpoints)
-- [Technology Stack](#technology-stack)
-- [Testing](#testing)
-- [User Guide](#user-guide)
-
-## Installation
+## 🚀 Projektstart
 
 ```bash
-# Update packages
 sudo apt update
-
-# Navigate to project directory
 cd myapp
-
-# Install required Node.js packages
 npm install express-session
 npm install socket.io
 npm install moment
-
-# Install and start MySQL
 sudo apt install -y mysql-server
 sudo service mysql start
 
-# Initialize database
 node db/db_user.js
-# Choose option 2 when prompted
-# This will create a user with all necessary privileges and run other initialization files
+# Bei der Abfrage "2" auswählen
+# Erstellt Benutzer mit allen Rechten & initialisiert die Datenbank
 
-# Start the application
-npm start
+# Zugangsdaten:
+# Benutzer: myuser
+# Passwort: meinPasswort
 ```
 
-### Database Credentials
-- User: myuser
-- Password: meinPasswort
+---
 
-## Features
+## 📚 Inhaltsverzeichnis
 
-- **User Authentication**: Registration, login, and JWT-based session management
-- **Profile Management**: Edit personal information and profile picture
-- **Matching System**: Like/dislike other users based on preferences
-- **Filtering**: Set age range and gender preferences for potential matches
-- **Real-time Chat**: Communicate with matches via WebSocket-based chat
-- **Match Management**: View and interact with your matches
+- [API-Endpunkte](#api-endpunkte)
+- [Verzeichnisstruktur](#verzeichnisstruktur)
+- [Umsetzung & Architektur](#umsetzung--architektur)
+- [ERM-Modell](#erm-modell)
+- [Test-Dokumentation](#test-dokumentation)
+- [Benutzerdokumentation](#benutzerdokumentation)
 
-## Project Structure
+---
 
-```
-myapp/
-├── app.js                  # Main application file
-├── package.json            # Node.js dependencies
-├── test-pool.js            # Database connection test
-├── bin/
-│   └── www                 # Server entry point
-├── config/
-│   ├── db.js               # Database connection
-│   ├── keys.js             # Application keys (JWT, Session)
-│   └── passport.js         # Passport configuration
-├── db/
-│   ├── chat-init.js        # Chat database tables setup
-│   ├── dislike_init.js     # Dislike database tables setup
-│   └── init.js             # Main database initialization
-├── middlewares/
-│   └── auth.js             # Authentication middleware
-├── public/
-│   ├── css/
-│   │   └── style.css       # Main style file
-│   ├── js/
-│   │   ├── auth.js         # Authentication script
-│   │   ├── fetch_auth.js   # Authenticated fetch requests
-│   │   ├── login.js        # Login functionality
-│   │   ├── main.js         # Main application script
-│   │   ├── matches.js      # Matches functionality
-│   │   ├── people.js       # People functionality
-│   │   ├── profile.js      # Profile functionality
-│   │   └── test-auth.js    # Authentication tests
-│   └── stylesheets/
-│       └── ...             # Additional stylesheets
-├── routes/
-│   ├── auth.js             # Authentication routes
-│   ├── chat.js             # Chat routes
-│   ├── filters.js          # Filter routes
-│   ├── index.js            # Index routes
-│   ├── matches.js          # Matches routes
-│   ├── people.js           # People routes
-│   ├── profile.js          # Profile routes
-│   └── users.js            # User routes
-└── views/
-    ├── error.ejs           # Error page
-    ├── filters.ejs         # Filter page
-    ├── index.ejs           # Home page
-    ├── layout.ejs          # Layout template
-    ├── login.ejs           # Login page
-    ├── matches.ejs         # Matches page
-    ├── people.ejs          # People page
-    ├── profile-edit.ejs    # Profile editing
-    ├── profile.ejs         # Profile page
-    └── register.ejs        # Registration page
-```
+## 🌐 API-Endpunkte
 
-## Architecture
+### Authentifizierung
 
-The application follows a MVC-like architecture:
+| Endpunkt   | Methode | Funktion                |
+|------------|---------|-------------------------|
+| `/login`   | GET     | Login-Seite anzeigen    |
+| `/login`   | POST    | Anmeldung               |
+| `/register`| GET     | Registrierungsseite     |
+| `/register`| POST    | Registrierung           |
+| `/logout`  | GET     | Abmelden                |
 
-- **Models**: Database models implemented through SQL queries directly in the routers
-- **Views**: EJS templates in the `/views` directory structure
-- **Controllers**: Express.js routers in the `/routes` directory structure
+### Profil
 
-### Authentication
-
-- JWT-based authentication (stateless)
-- Token storage in the browser's localStorage
-- Protected API endpoints via authenticateJWT middleware
-- Automatic token addition to requests through fetch_auth.js
-
-## Database Model
-
-```
-+----------------+       +-----------------+       +----------------+
-|      USER      |       |     MATCHES     |       |     DISLIKES   |
-+----------------+       +-----------------+       +----------------+
-| id (PK)        |<----->| user_id (FK)    |       | id (PK)        |
-| name           |       | liked_user_id (FK)      | user_id (FK)   |
-| gender         |       +-----------------+       | disliked_user_id (FK)
-| birthday       |                                 | dislike_count   |
-| image_url      |                                 | created_at      |
-| password_hash  |                                 +----------------+
-| password       |                                         ^
-+----------------+                                         |
-        ^                                                  |
-        |                                                  |
-        v                                                  |
-+------------------+                                       |
-| USER_FILTERS     |                                       |
-+------------------+                                       |
-| user_id (FK,PK)  |<--------------------------------------+
-| min_age          |
-| max_age          |
-| gender_preference|
-+------------------+
-        ^
-        |
-        v
-+------------------+       +----------------+
-| USER_INTERACTIONS|       |    MESSAGES    |
-+------------------+       +----------------+
-| user_id (FK,PK)  |       | id (PK)        |
-| interaction_count|       | sender_id (FK) |
-| last_reset_at    |       | recipient_id (FK)
-+------------------+       | content        |
-                           | is_read        |
-                           | created_at     |
-                           +----------------+
-```
-
-### Entity Relationships
-
-- **USER ↔ MATCHES**:
-  - A user can like multiple other users (1:n)
-  - A user can be liked by multiple other users (n:1)
-  - A match occurs when User A likes User B and User B also likes User A
-
-- **USER ↔ DISLIKES**:
-  - A user can dislike multiple other users (1:n)
-  - A user can be disliked by multiple other users (n:1)
-
-- **USER ↔ USER_FILTERS**:
-  - A user has exactly one filter entry (1:1)
-
-- **USER ↔ USER_INTERACTIONS**:
-  - A user has exactly one interactions entry (1:1)
-  - Stores the number of user interactions (likes/dislikes)
-
-- **USER ↔ MESSAGES**:
-  - A user can send multiple messages (1:n)
-  - A user can receive multiple messages (1:n)
-
-## API Endpoints
-
-### Authentication
-
-| Endpoint    | HTTP Method | Function              | Expected Data             | Response              |
-|-------------|-------------|----------------------|---------------------------|----------------------|
-| /login      | GET         | Show login page      | -                         | Login form           |
-| /login      | POST        | User login           | { email, password }       | { success, token, user } |
-| /register   | GET         | Show registration page | -                       | Registration form    |
-| /register   | POST        | Register user        | { name, gender, birthday, password } | { success, token, user } |
-| /logout     | GET         | Logout user          | -                         | Logout page          |
-
-### Profile
-
-| Endpoint      | HTTP Method | Function            | Expected Data             | Response              |
-|---------------|-------------|---------------------|---------------------------|----------------------|
-| /profile      | GET         | Show profile        | -                         | Profile information  |
-| /profile      | PUT         | Update profile      | { name, gender, birthday, image_url } | { success, message } |
-| /profile      | DELETE      | Delete profile      | -                         | { success, message } |
-| /profile/edit | GET         | Show edit page      | -                         | Edit form            |
+| Endpunkt     | Methode | Funktion               |
+|--------------|---------|------------------------|
+| `/profile`   | GET     | Profil anzeigen        |
+| `/profile`   | PUT     | Profil aktualisieren   |
+| `/profile`   | DELETE  | Profil löschen         |
+| `/profile/edit` | GET | Bearbeitungsseite      |
 
 ### People (Matching)
 
-| Endpoint         | HTTP Method | Function            | Expected Data | Response                    |
-|------------------|-------------|---------------------|---------------|----------------------------|
-| /people          | GET         | Show random profile | -             | Profile information        |
-| /people/like/:id | POST        | Like profile        | -             | { success, match, message } |
-| /people/dislike/:id | POST     | Dislike profile     | -             | { success }                |
+| Endpunkt             | Methode | Funktion     |
+|----------------------|---------|--------------|
+| `/people`            | GET     | Profil anzeigen |
+| `/people/like/:id`   | POST    | Liken        |
+| `/people/dislike/:id`| POST    | Disliken     |
 
 ### Matches
 
-| Endpoint  | HTTP Method | Function            | Expected Data | Response                 |
-|-----------|-------------|---------------------|---------------|-------------------------|
-| /matches  | GET         | Show matches list   | -             | List of matched profiles |
+| Endpunkt     | Methode | Funktion             |
+|--------------|---------|----------------------|
+| `/matches`   | GET     | Matches anzeigen     |
 
-### Filters
+### Filter
 
-| Endpoint  | HTTP Method | Function            | Expected Data                          | Response     |
-|-----------|-------------|---------------------|----------------------------------------|-------------|
-| /filters  | GET         | Show filter settings | -                                     | Filter settings |
-| /filters  | POST        | Update filters      | { min_age, max_age, gender_preference } | { message } |
+| Endpunkt     | Methode | Funktion             |
+|--------------|---------|----------------------|
+| `/filters`   | GET     | Filter anzeigen      |
+| `/filters`   | POST    | Filter aktualisieren |
 
 ### Chat
 
-| Endpoint     | HTTP Method | Function            | Expected Data | Response                    |
-|--------------|-------------|---------------------|---------------|----------------------------|
-| /chat/:userId | GET        | Get chat history    | -             | { messages, chatPartner }   |
-| /chat/:userId | POST       | Send message        | { content }   | { id, sender_id, recipient_id, content, created_at, isMine } |
+| Endpunkt         | Methode | Funktion              |
+|------------------|---------|------------------------|
+| `/chat/:userId`  | GET     | Chat-Verlauf abrufen  |
+| `/chat/:userId`  | POST    | Nachricht senden      |
 
-### WebSocket Events
+### WebSocket-Ereignisse
 
-| Event        | Direction      | Function                  | Data                            |
-|--------------|----------------|---------------------------|--------------------------------|
-| connect      | Client → Server | Establish socket connection | -                            |
-| authenticate | Client → Server | Authenticate socket connection | JWT Token                 |
-| send_message | Client → Server | Send message             | { recipientId, content }       |
-| message      | Server → Client | Receive message          | { id, senderId, recipientId, content, timestamp, isMine } |
-| error        | Server → Client | Receive error            | { message }                    |
+| Ereignis        | Richtung      | Funktion                  |
+|------------------|---------------|----------------------------|
+| `connect`        | Client → Server | Verbindung herstellen   |
+| `authenticate`   | Client → Server | Authentifizieren         |
+| `send_message`   | Client → Server | Nachricht senden         |
+| `message`        | Server → Client | Nachricht empfangen      |
+| `error`          | Server → Client | Fehler                   |
 
-## Technology Stack
+---
 
-### Frontend
-- HTML/EJS (Embedded JavaScript Templates)
-- CSS with Bootstrap 5
-- JavaScript (Client-side)
-- Font Awesome for icons
+## 📁 Verzeichnisstruktur
 
-### Backend
-- Node.js
-- Express.js as web framework
-- MySQL as database
-- Passport.js for authentication
-- JSON Web Tokens (JWT) for authentication
-- Socket.io for real-time chat functionality
+```plaintext
+myapp/
+├── app.js
+├── package.json
+├── bin/www
+├── config/
+│   ├── db.js
+│   ├── keys.js
+│   └── passport.js
+├── db/
+│   ├── chat-init.js
+│   ├── dislike_init.js
+│   └── init.js
+├── middlewares/
+│   └── auth.js
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── stylesheets/
+├── routes/
+│   ├── auth.js
+│   ├── chat.js
+│   ├── filters.js
+│   ├── index.js
+│   ├── matches.js
+│   ├── people.js
+│   ├── profile.js
+│   └── users.js
+└── views/
+    ├── error.ejs
+    ├── filters.ejs
+    ├── index.ejs
+    ├── layout.ejs
+    ├── login.ejs
+    ├── matches.ejs
+    ├── people.ejs
+    ├── profile-edit.ejs
+    ├── profile.ejs
+    └── register.ejs
+```
 
-## Testing
+---
 
-### Tested Functionality
-- Authentication (Registration, Login, Token persistence)
-- Profile management
-- Matching system
-- Filter application
-- Matches display
-- Real-time chat system
-
-### Testing Methodology
-- Manual testing of all features
-- Edge cases and error scenarios
-- Cross-browser testing in Firefox and Chrome
-- Debugging with extensive logging
-
-## User Guide
-
-### Getting Started
-
-#### Registration
-1. Open the application homepage
-2. Click "Register"
-3. Fill out the form with:
-   - Name
-   - Gender (male/female)
-   - Date of birth
-   - Password
-4. Click "Register"
-5. You will be automatically logged in and redirected to the "Discover" page
-
-#### Login
-1. Open the application homepage
-2. Click "Login"
-3. Enter your name and password
-4. Click "Login"
-
-### Navigation
-The main navigation includes:
-- **Discover**: Shows potential matches
-- **Matches**: Shows your successful matches
-- **Filters**: Adjust your search settings
-- **Profile**: Shows your profile information
-- **Logout**: Signs you out
-
-### Important Notes
-- All likes and matches are permanent until you delete your profile
-- Dislikes are reset after 10 interactions, so you can see these profiles again
-- Profile pictures are embedded via URLs, so you need to use a valid image URL
-- Chat messages are transmitted in real-time when both users are online
+(Der komplette Text ist zu lang für eine Zelle – wird im nächsten Schritt fortgesetzt.)
