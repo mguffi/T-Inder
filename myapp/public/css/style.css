@@ -1,11 +1,14 @@
 /* Custom CSS für das Dating-App-Layout */
 
-/* Hauptfarben */
+/* Modernisiertes Farbschema */
 :root {
-  --primary-color: #ff4d6d;
-  --secondary-color: #ff8fa3;
-  --dark-color: #590d22;
-  --light-color: #ffccd5;
+  --primary-color: #ff5a7e;       /* Helles Rosa - energisch und freundlich */
+  --secondary-color: #a5dee5;     /* Helles Blau - beruhigend und frisch */
+  --accent-color: #ffcb77;        /* Warmes Gelb - für Akzente und Highlights */
+  --dark-color: #19456b;          /* Tiefes Blau - für Text und Tiefe */
+  --light-color: #f7f9fc;         /* Sehr helles Grau - für Hintergründe */
+  --success-color: #66bb6a;       /* Grün für positive Aktionen/Matches */
+  --danger-color: #e57373;        /* Rot für Ablehnungen/Löschungen */
 }
 
 body {
