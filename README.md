@@ -12,10 +12,14 @@ sudo apt install -y mysql-server
 sudo service mysql start
 
 node db/db_user.js
+
 bei der abfrage die 2 auswählen
+
 es wird ein user mit allen wichtigen privilegien erstellt und die anderen init dateien ausgeführt um alle tabellen zu erstellen und zu füllen
 
-user myuser passwort meinPasswort
+
+npm start
+
 
 T-Inder: Dating App Dokumentation
 
