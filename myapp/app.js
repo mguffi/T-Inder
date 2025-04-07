@@ -173,25 +173,25 @@ io.on('connection', (socket) => {
       );
       
       const messageId = result.insertId;
-      const timestamp = new Date().toISOString();
+      const timestamp = new Date();
       
-      // Nachricht an Sender zurücksenden
-      socket.emit('message', { 
+      // Create the complete message object
+      const messageObj = {
         id: messageId,
         senderId,
         recipientId,
         content,
         timestamp,
-        isMine: true
-      });
+        isMine: true,
+        status: 'sent'
+      };
+      
+      // Nachricht an Sender zurücksenden mit Bestätigung
+      socket.emit('message', messageObj);
       
       // Nachricht an Empfänger senden
       io.to(`user-${recipientId}`).emit('message', {
-        id: messageId,
-        senderId,
-        recipientId,
-        content,
-        timestamp,
+        ...messageObj,
         isMine: false
       });
     } catch (error) {

@@ -103,4 +103,50 @@ router.post('/:userId', authenticateJWT, async (req, res) => {
   }
 });
 
+// Enhanced sendMessage function
+function sendMessage() {
+  const content = messageInput.value.trim();
+  
+  if (!content || !currentChatPartnerId) return;
+  
+  // Create a temporary message ID
+  const tempId = `temp-${Date.now()}`;
+  const timestamp = new Date();
+  
+  // Add message to UI immediately (optimistic UI update)
+  appendMessage({
+    id: tempId,
+    content: content,
+    created_at: timestamp,
+    isMine: true
+  });
+  
+  // Scroll to the new message
+  scrollToBottom();
+  
+  // Clear input field immediately for better user experience
+  messageInput.value = '';
+  
+  // Via Socket.io senden
+  socket.emit('send_message', {
+    recipientId: currentChatPartnerId,
+    content
+  });
+  
+  // If you want a fallback for when Socket.io might fail
+  // You can implement a retry mechanism or an HTTP fallback
+  socket.once('message', (message) => {
+    // If desired, you could replace the temporary message with the confirmed one
+    // But usually this isn't necessary as they will appear identical
+    console.log('Message confirmed by server:', message);
+  });
+  
+  // Handle potential errors
+  socket.once('error', (error) => {
+    console.error('Error sending message:', error);
+    // You could add UI feedback for the error here
+    alert(`Fehler beim Senden: ${error.message}`);
+  });
+}
+
 module.exports = router;
