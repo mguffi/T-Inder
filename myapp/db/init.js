@@ -59,6 +59,21 @@ async function initializeDatabase() {
     `);
     console.log('Filter-Tabelle erstellt oder bereits vorhanden.');
 
+    // Dislikes-Tabelle erstellen
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS dislikes (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        disliked_user_id INT NOT NULL,
+        dislike_count INT DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+        FOREIGN KEY (disliked_user_id) REFERENCES user(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_dislike (user_id, disliked_user_id)
+      )
+    `);
+    console.log('Dislikes-Tabelle erstellt oder bereits vorhanden.');
+
     // Testbenutzer hinzufügen
     await connection.query(`
       INSERT INTO user (id, name, gender, birthday, image_url, password_hash, password) VALUES

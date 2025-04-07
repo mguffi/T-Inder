@@ -2,32 +2,42 @@
 
 /* Modernisiertes Farbschema */
 :root {
-  --primary-color: #ff5a7e;       /* Helles Rosa - energisch und freundlich */
-  --secondary-color: #a5dee5;     /* Helles Blau - beruhigend und frisch */
-  --accent-color: #ffcb77;        /* Warmes Gelb - für Akzente und Highlights */
-  --dark-color: #19456b;          /* Tiefes Blau - für Text und Tiefe */
-  --light-color: #f7f9fc;         /* Sehr helles Grau - für Hintergründe */
-  --success-color: #66bb6a;       /* Grün für positive Aktionen/Matches */
-  --danger-color: #e57373;        /* Rot für Ablehnungen/Löschungen */
+  --primary-color: #ff6b6b;   /* Warmes Rosa statt Blau */
+  --secondary-color: #6c5ce7; /* Lebendiges Lila für Kontraste */
+  --accent-color: #fdcb6e;    /* Warmes Gelb für Akzente */
+  --light-color: #f9f9f9;     /* Helles Grau für Hintergründe */
+  --dark-color: #2d3436;      /* Dunkelgrau für Text */
+  --success-color: #00b894;   /* Grün für Erfolg/Match */
+  --danger-color: #d63031;    /* Rot für Ablehnung/Dislike */
 }
 
 body {
-  background-color: #ff8fa3;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--light-color);
+  color: var(--dark-color);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
 }
 
-/* Header und Navigation */
-.navbar-dark .navbar-brand {
-  font-weight: bold;
-  font-size: 1.5rem;
+.navbar {
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* Card-Styling */
+.navbar-brand {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.6rem;
+}
+
 .card {
   border: none;
-  transition: transform 0.3s, box-shadow 0.3s;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .card.shadow:hover {
@@ -37,84 +47,177 @@ body {
 
 .card-header {
   border-bottom: none;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white !important;
 }
 
 .btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(108, 92, 231, 0.2);
+  transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-  background-color: var(--dark-color);
-  border-color: var(--dark-color);
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(108, 92, 231, 0.3);
 }
 
 /* Profil-Karte */
 .profile-image-container {
   position: relative;
   display: inline-block;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  margin-bottom: 15px;
+}
+
+.profile-image-container img {
+  border: 3px solid white;
+  transition: all 0.3s ease;
 }
 
 /* Like/Dislike Buttons */
 .btn-lg.rounded-circle {
-  width: 64px;
-  height: 64px;
+  width: 70px;
+  height: 70px;
   padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  border: none;
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  border: none;
+}
+
+.btn-lg.rounded-circle:hover {
+  transform: scale(1.1);
+}
+
+.btn-lg.rounded-circle i {
+  font-size: 1.8rem;
 }
 
 /* Footer */
 footer {
   margin-top: auto;
+  background-color: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* Chat-Styling */
 .message-bubble {
-  max-width: 70%;
+  max-width: 75%;
   border-radius: 18px;
   word-break: break-word;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  margin-bottom: 12px;
 }
 
 .message-bubble.sent {
-  border-bottom-right-radius: 5px;
-  background-color: #0d6efd;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: white;
+  border-bottom-right-radius: 5px;
+  margin-left: auto;
+  margin-right: 10px;
 }
 
 .message-bubble.received {
+  background-color: white;
+  color: var(--dark-color);
   border-bottom-left-radius: 5px;
-  background-color: #f0f0f0;
-  color: #333;
+  margin-right: auto;
+  margin-left: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .chat-messages {
   display: flex;
   flex-direction: column;
-  height: 300px;
+  height: 350px;
   overflow-y: auto;
   padding: 15px;
-  background-color: #f9f9f9;
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 .mw-75 {
   max-width: 75%;
+  padding: 12px 16px;
 }
 
 /* Ungelesene Nachrichten-Badge */
 .unread-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #ff4d6d;
+  top: 5px;
+  right: 5px;
+  background-color: var(--primary-color);
   color: white;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Match-Animation */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.match-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+/* Verbesserte Formularkontrollen */
+.form-control {
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px 15px;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.25);
+  border-color: var(--primary-color);
+}
+
+/* Chat-Input-Styling */
+.chat-input {
+  background-color: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 15px !important;
+}
+
+.chat-input .input-group {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.chat-input .form-control {
+  border-radius: 25px 0 0 25px;
+  border: none;
+}
+
+.chat-input .btn {
+  border-radius: 0 25px 25px 0;
+  padding: 0 20px;
 }
