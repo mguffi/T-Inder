@@ -175,22 +175,18 @@ async function main() {
     });
     
     console.log('3. Erstelle Dislike-Tabellen...');
-    // Prüfen ob die Datei existiert
-    if (fs.existsSync(path.join(__dirname, 'db', 'dislike_init.js'))) {
-      await new Promise((resolve, reject) => {
-        exec('node db/dislike_init.js', (error, stdout, stderr) => {
-          console.log(stdout);
-          if (error) {
-            console.error(stderr);
-            reject(error);
-          } else {
-            resolve();
-          }
-        });
+    // Hier direkt ausführen wie bei den anderen Skripten, ohne unnötige Prüfung
+    await new Promise((resolve, reject) => {
+      exec('node db/dislike_init.js', (error, stdout, stderr) => {
+        console.log(stdout);
+        if (error) {
+          console.error(stderr);
+          reject(error);
+        } else {
+          resolve();
+        }
       });
-    } else {
-      console.log('Dislike-Initialisierungsdatei nicht gefunden, überspringe...');
-    }
+    });
     
     console.log('\n===== Installation erfolgreich abgeschlossen! =====');
     console.log('\nDu kannst dich jetzt mit einem der folgenden Testbenutzer anmelden:');
