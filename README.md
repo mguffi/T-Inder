@@ -1,269 +1,137 @@
-# T-Inder
-um zu starten
-initialisiere 
+# T-Inder Dating App
 
+A Node.js-based dating application with matching functionality, real-time chat, and user profile management.
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Architecture](#architecture)
+- [Database Model](#database-model)
+- [API Endpoints](#api-endpoints)
+- [Technology Stack](#technology-stack)
+- [Testing](#testing)
+- [User Guide](#user-guide)
+
+## Installation
+
+```bash
+# Update packages
 sudo apt update
+
+# Navigate to project directory
 cd myapp
+
+# Install required Node.js packages
 npm install express-session
 npm install socket.io
 npm install moment
+
+# Install and start MySQL
 sudo apt install -y mysql-server
 sudo service mysql start
 
+# Initialize database
 node db/db_user.js
+# Choose option 2 when prompted
+# This will create a user with all necessary privileges and run other initialization files
 
-bei der abfrage die 2 auswählen
-
-es wird ein user mit allen wichtigen privilegien erstellt und die anderen init dateien ausgeführt um alle tabellen zu erstellen und zu füllen
-
-
+# Start the application
 npm start
+```
 
+### Database Credentials
+- User: myuser
+- Password: meinPasswort
 
-T-Inder: Dating App Dokumentation
+## Features
 
+- **User Authentication**: Registration, login, and JWT-based session management
+- **Profile Management**: Edit personal information and profile picture
+- **Matching System**: Like/dislike other users based on preferences
+- **Filtering**: Set age range and gender preferences for potential matches
+- **Real-time Chat**: Communicate with matches via WebSocket-based chat
+- **Match Management**: View and interact with your matches
 
-Inhaltsverzeichnis
+## Project Structure
 
-API-Endpunkte
-Verzeichnisstruktur
-Umsetzung und Architektur
-ERM-Modell
-Test-Dokumentation
-Benutzerdokumentation
-
-API-Endpunkte
-
-Authentifizierung
-Endpunkt	HTTP-Methode	Funktion	Erwartete Daten	Rückgabe
-/login	GET	Login-Seite anzeigen	-	Login-Formular
-/login	POST	Benutzeranmeldung	{ email, password }	{ success, token, user }
-/register	GET	Registrierungsseite anzeigen	-	Registrierungsformular
-/register	POST	Benutzer registrieren	{ name, gender, birthday, password }	{ success, token, user }
-/logout	GET	Benutzer ausloggen	-	Logout-Seite
-Profil
-Endpunkt	HTTP-Methode	Funktion	Erwartete Daten	Rückgabe
-/profile	GET	Profil anzeigen	-	Profilinformationen
-/profile	PUT	Profil aktualisieren	{ name, gender, birthday, image_url }	{ success, message }
-/profile	DELETE	Profil löschen	-	{ success, message }
-/profile/edit	GET	Bearbeitungsseite anzeigen	-	Bearbeitungsformular
-People (Matching)
-Endpunkt	HTTP-Methode	Funktion	Erwartete Daten	Rückgabe
-/people	GET	Zufälliges Profil anzeigen	-	Profilinformationen
-/people/like/:id	POST	Profil liken	-	{ success, match, message }
-/people/dislike/:id	POST	Profil disliken	-	{ success }
-Matches
-Endpunkt	HTTP-Methode	Funktion	Erwartete Daten	Rückgabe
-/matches	GET	Liste der Matches anzeigen	-	Liste der gematchten Profile
-Filter
-Endpunkt	HTTP-Methode	Funktion	Erwartete Daten	Rückgabe
-/filters	GET	Filter-Einstellungen anzeigen	-	Filter-Einstellungen
-/filters	POST	Filter aktualisieren	{ min_age, max_age, gender_preference }	{ message }
-Chat
-Endpunkt	HTTP-Methode	Funktion	Erwartete Daten	Rückgabe
-/chat/:userId	GET	Chat-Verlauf abrufen	-	{ messages, chatPartner }
-/chat/:userId	POST	Nachricht senden	{ content }	{ id, sender_id, recipient_id, content, created_at, isMine }
-WebSocket-Ereignisse
-Ereignis	Richtung	Funktion	Daten
-connect	Client → Server	Socket-Verbindung herstellen	-
-authenticate	Client → Server	Socket-Verbindung authentifizieren	JWT-Token
-send_message	Client → Server	Nachricht senden	{ recipientId, content }
-message	Server → Client	Nachricht empfangen	{ id, senderId, recipientId, content, timestamp, isMine }
-error	Server → Client	Fehler empfangen	{ message }
-
-
-Verzeichnisstruktur
-
+```
 myapp/
-├── app.js                  # Hauptanwendungsdatei
-├── package.json            # Node.js-Abhängigkeiten
-├── test-pool.js            # Testdatei für Datenbankverbindung
+├── app.js                  # Main application file
+├── package.json            # Node.js dependencies
+├── test-pool.js            # Database connection test
 ├── bin/
-│   └── www                 # Server-Startpunkt
+│   └── www                 # Server entry point
 ├── config/
-│   ├── db.js               # Datenbankverbindung
-│   ├── keys.js             # Anwendungsschlüssel (JWT, Session)
-│   └── passport.js         # Passport-Konfiguration
+│   ├── db.js               # Database connection
+│   ├── keys.js             # Application keys (JWT, Session)
+│   └── passport.js         # Passport configuration
 ├── db/
-│   ├── chat-init.js        # Chat-Datenbanktabellen erstellen
-│   ├── dislike_init.js     # Dislike-Datenbanktabellen erstellen
-│   └── init.js             # Hauptdatenbank initialisieren
+│   ├── chat-init.js        # Chat database tables setup
+│   ├── dislike_init.js     # Dislike database tables setup
+│   └── init.js             # Main database initialization
 ├── middlewares/
-│   └── auth.js             # Authentifizierungs-Middleware
+│   └── auth.js             # Authentication middleware
 ├── public/
 │   ├── css/
-│   │   └── style.css       # Hauptstil-Datei
+│   │   └── style.css       # Main style file
 │   ├── js/
-│   │   ├── auth.js         # Authentifizierungs-Skript
-│   │   ├── fetch_auth.js   # Authentifizierte Fetch-Anfragen
-│   │   ├── login.js        # Login-Funktionalität
-│   │   ├── main.js         # Hauptanwendungs-Skript
-│   │   ├── matches.js      # Matches-Funktionalität
-│   │   ├── people.js       # People-Funktionalität
-│   │   ├── profile.js      # Profil-Funktionalität
-│   │   └── test-auth.js    # Authentifizierungstests
+│   │   ├── auth.js         # Authentication script
+│   │   ├── fetch_auth.js   # Authenticated fetch requests
+│   │   ├── login.js        # Login functionality
+│   │   ├── main.js         # Main application script
+│   │   ├── matches.js      # Matches functionality
+│   │   ├── people.js       # People functionality
+│   │   ├── profile.js      # Profile functionality
+│   │   └── test-auth.js    # Authentication tests
 │   └── stylesheets/
-│       └── ...             # Weitere Stilblätter
+│       └── ...             # Additional stylesheets
 ├── routes/
-│   ├── auth.js             # Authentifizierungsrouten
-│   ├── chat.js             # Chat-Routen
-│   ├── filters.js          # Filter-Routen
-│   ├── index.js            # Index-Routen
-│   ├── matches.js          # Matches-Routen
-│   ├── people.js           # People-Routen
-│   ├── profile.js          # Profil-Routen
-│   └── users.js            # Benutzerrouten
+│   ├── auth.js             # Authentication routes
+│   ├── chat.js             # Chat routes
+│   ├── filters.js          # Filter routes
+│   ├── index.js            # Index routes
+│   ├── matches.js          # Matches routes
+│   ├── people.js           # People routes
+│   ├── profile.js          # Profile routes
+│   └── users.js            # User routes
 └── views/
-    ├── error.ejs           # Fehlerseite
-    ├── filters.ejs         # Filter-Seite
-    ├── index.ejs           # Startseite
-    ├── layout.ejs          # Layout-Template
-    ├── login.ejs           # Login-Seite
-    ├── matches.ejs         # Matches-Seite
-    ├── people.ejs          # People-Seite
-    ├── profile-edit.ejs    # Profilbearbeitung
-    ├── profile.ejs         # Profilseite
-    └── register.ejs        # Registrierungsseite
+    ├── error.ejs           # Error page
+    ├── filters.ejs         # Filter page
+    ├── index.ejs           # Home page
+    ├── layout.ejs          # Layout template
+    ├── login.ejs           # Login page
+    ├── matches.ejs         # Matches page
+    ├── people.ejs          # People page
+    ├── profile-edit.ejs    # Profile editing
+    ├── profile.ejs         # Profile page
+    └── register.ejs        # Registration page
+```
 
+## Architecture
 
+The application follows a MVC-like architecture:
 
+- **Models**: Database models implemented through SQL queries directly in the routers
+- **Views**: EJS templates in the `/views` directory structure
+- **Controllers**: Express.js routers in the `/routes` directory structure
 
+### Authentication
 
+- JWT-based authentication (stateless)
+- Token storage in the browser's localStorage
+- Protected API endpoints via authenticateJWT middleware
+- Automatic token addition to requests through fetch_auth.js
 
-Umsetzung und Architektur
-Technologie-Stack
+## Database Model
 
-Frontend:
-
-HTML/EJS (Embedded JavaScript Templates)
-CSS mit Bootstrap 5
-JavaScript (Client-seitig)
-Font Awesome für Icons
-
-Backend:
-
-Node.js
-Express.js als Web-Framework
-MySQL als Datenbank
-Passport.js für Authentifizierung
-JSON Web Tokens (JWT) für die Authentifizierung
-Socket.io für Echtzeit-Chat-Funktionalität
-
-Architektur
-Die Anwendung folgt einer klassischen MVC-ähnlichen Architektur:
-
-Models: Datenbankmodelle werden durch SQL-Abfragen direkt in den Routern implementiert
-Views: EJS-Templates in der /views-Ordnerstruktur
-Controllers: Express.js-Router in der /routes-Ordnerstruktur
-
-Authentifizierung
-
-JWT-basierte Authentifizierung (stateless)
-Token-Speicherung im localStorage des Browsers
-Authentifizierte API-Endpunkte durch authenticateJWT-Middleware geschützt
-Automatische Token-Hinzufügung zu Anfragen durch fetch_auth.js
-
-Datenspeicherung
-
-MySQL-Datenbank mit folgenden Haupttabellen:
-user: Benutzerdaten
-matches: Benutzer-Likes
-dislikes: Benutzer-Dislikes
-user_filters: Benutzerfilter
-messages: Chat-Nachrichten
-
-Implementierte Features
-
-Benutzerregistrierung und -anmeldung:
-
-Registrierung mit Namen, Geschlecht, Geburtsdatum und Passwort
-Sichere Passwort-Speicherung mit bcrypt
-JWT-basierte Authentifizierung
-
-Profilmanagement:
-
-Anzeigen und Bearbeiten des eigenen Profils
-Profilbild-URL-Änderung
-Kontolöschung
-
-Matching-System:
-
-Zufällige Profile anzeigen, basierend auf Benutzerfiltern
-Like/Dislike-Funktionalität
-Match-Erkennung (gegenseitiges Liken)
-Automatisches Zurücksetzen von Dislikes nach bestimmter Anzahl von Interaktionen
-
-Filter-Einstellungen:
-
-Altersbereich anpassen
-Geschlechterpräferenzen einstellen
-
-Matches-Anzeige:
-
-Liste aller Matches anzeigen
-Profil-Details der Matches einsehen
-
-Echtzeit-Chat:
-
-Chat-Funktionalität mit Socket.io
-Nachrichtenverlauf für jede Match-Kombination
-Ungelesene Nachrichten markieren
-Echtzeit-Benachrichtigungen durch WebSockets
-Entwicklungsprozess
-
-Grundlegende Anwendungsstruktur:
-
-Express.js-Anwendung initialisiert
-Routing- und View-Struktur erstellt
-Datenbankanbindung eingerichtet
-
-Authentifizierung:
-
-JWT-Authentifizierungssystem implementiert
-Passport.js für API-Routen-Schutz integriert
-
-Benutzerprofil:
-
-Benutzerregistrierung und -anmeldung
-Profilansicht und -bearbeitung
-
-Matching-System:
-
-Datenbankschema für Matches und Dislikes
-Like/Dislike-Logik
-Match-Erkennung
-
-Filter:
-
-Benutzerfilter für Alter und Geschlecht
-Datenbankschema für Filter
-
-Chat-System:
-
-Socket.io für Echtzeit-Kommunikation
-Chat-Verlauf und Nachrichtenspeicherung
-Verbessertes UI für Chat-Funktionalität
-
-Fehlerbehandlung und Debuggen:
-
-Ausführliche Logging-Funktionalität hinzugefügt
-Fehlerbehandlung für API-Endpunkte
-Client-seitige Fehlerbehandlung
-
-UI-Verbesserungen:
-
-Responsives Design mit Bootstrap
-Optimiertes Farbschema
-Benutzerfreundliche Interaktionen
-
-ERM-Modell
-
+```
 +----------------+       +-----------------+       +----------------+
 |      USER      |       |     MATCHES     |       |     DISLIKES   |
 +----------------+       +-----------------+       +----------------+
 | id (PK)        |<----->| user_id (FK)    |       | id (PK)        |
-| name           |       | liked_user_id (FK)       | user_id (FK)   |
+| name           |       | liked_user_id (FK)      | user_id (FK)   |
 | gender         |       +-----------------+       | disliked_user_id (FK)
 | birthday       |                                 | dislike_count   |
 | image_url      |                                 | created_at      |
@@ -294,193 +162,152 @@ ERM-Modell
                            | is_read        |
                            | created_at     |
                            +----------------+
+```
 
+### Entity Relationships
 
+- **USER ↔ MATCHES**:
+  - A user can like multiple other users (1:n)
+  - A user can be liked by multiple other users (n:1)
+  - A match occurs when User A likes User B and User B also likes User A
 
+- **USER ↔ DISLIKES**:
+  - A user can dislike multiple other users (1:n)
+  - A user can be disliked by multiple other users (n:1)
 
+- **USER ↔ USER_FILTERS**:
+  - A user has exactly one filter entry (1:1)
 
-Beziehungen:
+- **USER ↔ USER_INTERACTIONS**:
+  - A user has exactly one interactions entry (1:1)
+  - Stores the number of user interactions (likes/dislikes)
 
-USER ↔ MATCHES:
+- **USER ↔ MESSAGES**:
+  - A user can send multiple messages (1:n)
+  - A user can receive multiple messages (1:n)
 
-Ein Benutzer kann mehrere andere Benutzer liken (1:n)
-Ein Benutzer kann von mehreren anderen Benutzern geliked werden (n:1)
-Ein Match entsteht, wenn Benutzer A Benutzer B liked und Benutzer B auch Benutzer A liked
+## API Endpoints
 
-USER ↔ DISLIKES:
+### Authentication
 
-Ein Benutzer kann mehrere andere Benutzer disliken (1:n)
-Ein Benutzer kann von mehreren anderen Benutzern gedisliked werden (n:1)
+| Endpoint    | HTTP Method | Function              | Expected Data             | Response              |
+|-------------|-------------|----------------------|---------------------------|----------------------|
+| /login      | GET         | Show login page      | -                         | Login form           |
+| /login      | POST        | User login           | { email, password }       | { success, token, user } |
+| /register   | GET         | Show registration page | -                       | Registration form    |
+| /register   | POST        | Register user        | { name, gender, birthday, password } | { success, token, user } |
+| /logout     | GET         | Logout user          | -                         | Logout page          |
 
-USER ↔ USER_FILTERS:
+### Profile
 
-Ein Benutzer hat genau einen Filter-Eintrag (1:1)
+| Endpoint      | HTTP Method | Function            | Expected Data             | Response              |
+|---------------|-------------|---------------------|---------------------------|----------------------|
+| /profile      | GET         | Show profile        | -                         | Profile information  |
+| /profile      | PUT         | Update profile      | { name, gender, birthday, image_url } | { success, message } |
+| /profile      | DELETE      | Delete profile      | -                         | { success, message } |
+| /profile/edit | GET         | Show edit page      | -                         | Edit form            |
 
-USER ↔ USER_INTERACTIONS:
+### People (Matching)
 
-Ein Benutzer hat genau einen Interactions-Eintrag (1:1)
-Speichert die Anzahl der Benutzerinteraktionen (Likes/Dislikes)
+| Endpoint         | HTTP Method | Function            | Expected Data | Response                    |
+|------------------|-------------|---------------------|---------------|----------------------------|
+| /people          | GET         | Show random profile | -             | Profile information        |
+| /people/like/:id | POST        | Like profile        | -             | { success, match, message } |
+| /people/dislike/:id | POST     | Dislike profile     | -             | { success }                |
 
-USER ↔ MESSAGES:
+### Matches
 
-Ein Benutzer kann mehrere Nachrichten senden (1:n)
-Ein Benutzer kann mehrere Nachrichten empfangen (1:n)
+| Endpoint  | HTTP Method | Function            | Expected Data | Response                 |
+|-----------|-------------|---------------------|---------------|-------------------------|
+| /matches  | GET         | Show matches list   | -             | List of matched profiles |
 
-Test-Dokumentation
+### Filters
 
-Getestete Funktionen
+| Endpoint  | HTTP Method | Function            | Expected Data                          | Response     |
+|-----------|-------------|---------------------|----------------------------------------|-------------|
+| /filters  | GET         | Show filter settings | -                                     | Filter settings |
+| /filters  | POST        | Update filters      | { min_age, max_age, gender_preference } | { message } |
 
-Authentifizierung:
+### Chat
 
-Registrierung mit gültigen Daten
-Registrierung mit bereits existierendem Benutzernamen
-Login mit gültigen Anmeldedaten
-Login mit ungültigen Anmeldedaten
-Logout-Funktion
-Token-Persistenz über Seitenneuladen
-Zugriff auf geschützte Routen mit/ohne gültiges Token
+| Endpoint     | HTTP Method | Function            | Expected Data | Response                    |
+|--------------|-------------|---------------------|---------------|----------------------------|
+| /chat/:userId | GET        | Get chat history    | -             | { messages, chatPartner }   |
+| /chat/:userId | POST       | Send message        | { content }   | { id, sender_id, recipient_id, content, created_at, isMine } |
 
-Profilmanagement:
+### WebSocket Events
 
-Profilanzeige
-Profilbearbeitung (Name, Geschlecht, Geburtsdatum, Profilbild)
-Profilbild-Vorschau-Funktion
-Profillöschung
+| Event        | Direction      | Function                  | Data                            |
+|--------------|----------------|---------------------------|--------------------------------|
+| connect      | Client → Server | Establish socket connection | -                            |
+| authenticate | Client → Server | Authenticate socket connection | JWT Token                 |
+| send_message | Client → Server | Send message             | { recipientId, content }       |
+| message      | Server → Client | Receive message          | { id, senderId, recipientId, content, timestamp, isMine } |
+| error        | Server → Client | Receive error            | { message }                    |
 
-Matching-System:
+## Technology Stack
 
-Anzeige zufälliger Profile basierend auf Filtern
-Like-Funktion und Match-Erkennung
-Dislike-Funktion und temporäre Ausblendung von Profilen
-Automtatisches Zurücksetzen von Dislikes nach 10 Interaktionen
-Anzeige von "Keine weiteren Profile" wenn alle Profile abgearbeitet sind
+### Frontend
+- HTML/EJS (Embedded JavaScript Templates)
+- CSS with Bootstrap 5
+- JavaScript (Client-side)
+- Font Awesome for icons
 
-Filter:
+### Backend
+- Node.js
+- Express.js as web framework
+- MySQL as database
+- Passport.js for authentication
+- JSON Web Tokens (JWT) for authentication
+- Socket.io for real-time chat functionality
 
-Korrekte Anwendung von Altersfiltern
-Korrekte Anwendung von Geschlechterfiltern
-Speicherung der Filtereinstellungen
+## Testing
 
-Matches-Anzeige:
+### Tested Functionality
+- Authentication (Registration, Login, Token persistence)
+- Profile management
+- Matching system
+- Filter application
+- Matches display
+- Real-time chat system
 
-Korrekte Anzeige der gematchten Profile
-Navigation zum Chat mit einem Match
+### Testing Methodology
+- Manual testing of all features
+- Edge cases and error scenarios
+- Cross-browser testing in Firefox and Chrome
+- Debugging with extensive logging
 
-Chat-System:
+## User Guide
 
-Nachrichten senden und empfangen
-Korrektes Laden des Chat-Verlaufs
-Echtzeit-Updates bei neuen Nachrichten
-Korrekte Anzeige von "Meine" und "Fremde" Nachrichten
-Markierung gelesener/ungelesener Nachrichten
+### Getting Started
 
-Testmethodik
+#### Registration
+1. Open the application homepage
+2. Click "Register"
+3. Fill out the form with:
+   - Name
+   - Gender (male/female)
+   - Date of birth
+   - Password
+4. Click "Register"
+5. You will be automatically logged in and redirected to the "Discover" page
 
-Manuelle Tests:
+#### Login
+1. Open the application homepage
+2. Click "Login"
+3. Enter your name and password
+4. Click "Login"
 
-Systematisches Durchspielen aller Funktionalitäten
-Edge Cases und Fehlerszenarien getestet
-Cross-Browser-Tests in Firefox und Chrome
+### Navigation
+The main navigation includes:
+- **Discover**: Shows potential matches
+- **Matches**: Shows your successful matches
+- **Filters**: Adjust your search settings
+- **Profile**: Shows your profile information
+- **Logout**: Signs you out
 
-Debugging mit Logging:
-
-Umfangreiche Debug-Logs implementiert
-Token-Überprüfung und -Validierung
-Datenbankabfragen-Logging
-Mögliche zukünftige Tests
-
-Automatisierte Tests:
-
-Unit-Tests für Backend-Logik
-Integration-Tests für API-Endpunkte
-End-to-End-Tests für Benutzerflows
-
-Leistungstests:
-
-Lasttests für Chat-Funktionalität
-Datenbank-Performance bei vielen Benutzern
-
-Sicherheitstests:
-
-Penetrationstests
-XSS-Tests
-CSRF-Tests
-Benutzerdokumentation
-Erste Schritte
-Registrierung
-Öffnen Sie die Startseite der Anwendung
-Klicken Sie auf "Registrieren"
-Füllen Sie das Formular aus mit:
-Name
-Geschlecht (männlich/weiblich)
-Geburtsdatum
-Passwort
-Klicken Sie auf "Registrieren"
-Sie werden automatisch eingeloggt und zur "Entdecken"-Seite weitergeleitet
-Anmeldung
-Öffnen Sie die Startseite der Anwendung
-Klicken Sie auf "Login"
-Geben Sie Ihren Namen und Ihr Passwort ein
-Klicken Sie auf "Login"
-Navigation
-Die Hauptnavigation enthält folgende Punkte:
-
-Entdecken: Zeigt potenzielle Matches an
-Matches: Zeigt Ihre erfolgreichen Matches an
-Filter: Hier können Sie Ihre Sucheinstellungen anpassen
-Profil: Zeigt Ihre Profilinformationen an
-Logout: Meldet Sie ab
-Profil verwalten
-Profil anzeigen
-Klicken Sie in der Navigation auf "Profil"
-Sie sehen Ihre aktuellen Profilinformationen
-Profil bearbeiten
-Gehen Sie zu Ihrem Profil
-Klicken Sie auf "Profil bearbeiten"
-Ändern Sie die gewünschten Informationen:
-Name
-Geschlecht
-Geburtsdatum
-Profilbild-URL
-Klicken Sie auf "Speichern"
-Sie werden zum aktualisierten Profil weitergeleitet
-Profil löschen
-Gehen Sie zu Ihrem Profil
-Klicken Sie auf "Account löschen"
-Bestätigen Sie die Löschung im angezeigten Dialogfeld
-Sie werden zur Startseite weitergeleitet und automatisch abgemeldet
-Dating-Funktionen nutzen
-Profile entdecken
-Klicken Sie in der Navigation auf "Entdecken"
-Ihnen wird ein zufälliges Profil angezeigt, das Ihren Filterkriterien entspricht
-Sie können:
-Nach links wischen oder auf das X-Symbol klicken, um das Profil zu disliken
-Nach rechts wischen oder auf das Herzsymbol klicken, um das Profil zu liken
-Bei gegenseitigem Like entsteht ein Match
-Filter anpassen
-Klicken Sie in der Navigation auf "Filter"
-Stellen Sie ein:
-Minimalalter
-Maximalalter
-Geschlechterpräferenz (männlich/weiblich/alle)
-Klicken Sie auf "Filter speichern"
-Die neuen Filter werden auf die "Entdecken"-Funktion angewendet
-Matches und Chat
-Matches anzeigen
-Klicken Sie in der Navigation auf "Matches"
-Sie sehen eine Liste aller Benutzer, mit denen Sie ein Match haben
-Chatten
-Gehen Sie zur Matches-Seite
-Klicken Sie bei einem Match auf "Chat starten"
-Ein Chat-Fenster öffnet sich mit dem bisherigen Chatverlauf
-Geben Sie Ihre Nachricht in das Textfeld ein
-Drücken Sie auf die Senden-Taste oder Enter
-Die Nachricht wird in Echtzeit gesendet und angezeigt
-Logout
-Klicken Sie in der Navigation auf "Logout"
-Sie werden abgemeldet und zur Login-Seite weitergeleitet
-Wichtige Hinweise
-Alle Likes und Matches sind permanent, bis Sie Ihr Profil löschen
-Dislikes werden nach 10 Interaktionen zurückgesetzt, sodass Sie diese Profile erneut sehen können
-Profilbilder werden über URLs eingebunden, daher müssen Sie eine gültige Bild-URL verwenden
-Chatnachrichten werden in Echtzeit übermittelt, wenn beide Benutzer online sind
+### Important Notes
+- All likes and matches are permanent until you delete your profile
+- Dislikes are reset after 10 interactions, so you can see these profiles again
+- Profile pictures are embedded via URLs, so you need to use a valid image URL
+- Chat messages are transmitted in real-time when both users are online
